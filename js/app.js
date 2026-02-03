@@ -428,6 +428,15 @@ function showHelp() {
     showView('help-view');
 }
 
+let aiInitialized = false;
+function showAiAssistant() {
+    showView('ai-view');
+    if (!aiInitialized) {
+        initAiAssistant();
+        aiInitialized = true;
+    }
+}
+
 function showProfile() {
     showView('profile-view');
     loadProfileView();

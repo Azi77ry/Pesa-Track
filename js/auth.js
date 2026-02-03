@@ -67,9 +67,11 @@ const Auth = {
 
             // Set current user
             this.currentUser = user;
-            localStorage.setItem('currentUserId', user.id);
-            localStorage.setItem('userEmail', user.email);
-            localStorage.setItem('userName', user.name);
+            const remember = document.getElementById('login-remember');
+            const storage = remember && remember.checked ? localStorage : sessionStorage;
+            storage.setItem('currentUserId', user.id);
+            storage.setItem('userEmail', user.email);
+            storage.setItem('userName', user.name);
 
             return { success: true, user };
         } catch (error) {
@@ -83,6 +85,9 @@ const Auth = {
         localStorage.removeItem('currentUserId');
         localStorage.removeItem('userEmail');
         localStorage.removeItem('userName');
+        sessionStorage.removeItem('currentUserId');
+        sessionStorage.removeItem('userEmail');
+        sessionStorage.removeItem('userName');
         showAuthContainer();
     },
 
@@ -93,7 +98,7 @@ const Auth = {
 
     // Get current user ID
     getCurrentUserId() {
-        return localStorage.getItem('currentUserId');
+        return localStorage.getItem('currentUserId') || sessionStorage.getItem('currentUserId');
     },
 
     // Check if user is logged in
@@ -115,6 +120,14 @@ const Auth = {
                 }
 
                 this.currentUser = user;
+                const fromSession = sessionStorage.getItem('currentUserId');
+                if (fromSession) {
+                    sessionStorage.setItem('userEmail', user.email);
+                    sessionStorage.setItem('userName', user.name);
+                } else {
+                    localStorage.setItem('userEmail', user.email);
+                    localStorage.setItem('userName', user.name);
+                }
                 return true;
             }
         }
@@ -136,7 +149,9 @@ async function handleLogin(event) {
         initApp();
     } else if (result.needsActivation) {
         Auth.currentUser = result.user;
-        localStorage.setItem('currentUserId', result.user.id);
+        const remember = document.getElementById('login-remember');
+        const storage = remember && remember.checked ? localStorage : sessionStorage;
+        storage.setItem('currentUserId', result.user.id);
         showActivationPage();
     } else {
         showToast(result.error, 'error');
