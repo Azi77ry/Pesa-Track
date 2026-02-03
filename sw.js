@@ -1,12 +1,25 @@
-// Service Worker for FinanceFlow PWA
-const CACHE_NAME = 'financeflow-v2';
+// Service Worker for PesaTrucker PWA
+const CACHE_NAME = 'pesatrucker-v13';
 const urlsToCache = [
     '/',
     '/index.html',
     '/css/styles.css',
     '/css/themes.css',
+    '/vendor/bootstrap/css/bootstrap.min.css',
+    '/vendor/bootstrap-icons/bootstrap-icons.min.css',
+    '/vendor/bootstrap-icons/bootstrap-icons.min.css.map',
+    '/vendor/bootstrap-icons/font/bootstrap-icons.woff2',
+    '/vendor/bootstrap-icons/font/bootstrap-icons.woff',
+    '/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2',
+    '/vendor/bootstrap-icons/fonts/bootstrap-icons.woff',
+    '/vendor/bootstrap/js/bootstrap.bundle.min.js',
+    '/vendor/bootstrap/js/bootstrap.bundle.min.js.map',
+    '/vendor/chartjs/chart.umd.min.js',
+    '/vendor/chartjs/chart.umd.js.map',
+    '/vendor/bootstrap/css/bootstrap.min.css.map',
     '/js/db.js',
     '/js/auth.js',
+    '/js/license-keys.js',
     '/js/license.js',
     '/js/app.js',
     '/js/transactions.js',
@@ -15,10 +28,8 @@ const urlsToCache = [
     '/js/reports.js',
     '/js/settings.js',
     '/js/sync.js',
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
-    'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css',
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
-    'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js'
+    '/assets/icon192.png',
+    '/assets/icon144.png'
 ];
 
 // Install Service Worker
@@ -30,6 +41,7 @@ self.addEventListener('install', event => {
                 return cache.addAll(urlsToCache);
             })
     );
+    self.skipWaiting();
 });
 
 // Fetch from cache
@@ -78,6 +90,13 @@ self.addEventListener('activate', event => {
             );
         })
     );
+    self.clients.claim();
+});
+
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });
 
 // Background Sync
@@ -101,13 +120,13 @@ async function syncData() {
 self.addEventListener('push', event => {
     const options = {
         body: event.data ? event.data.text() : 'New notification',
-        icon: '/assets/icon-192.png',
-        badge: '/assets/icon-192.png',
+        icon: '/assets/icon192.png',
+        badge: '/assets/icon192.png',
         vibrate: [200, 100, 200]
     };
 
     event.waitUntil(
-        self.registration.showNotification('FinanceFlow', options)
+        self.registration.showNotification('PesaTrucker', options)
     );
 });
 

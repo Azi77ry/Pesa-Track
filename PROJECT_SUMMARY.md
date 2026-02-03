@@ -1,8 +1,8 @@
-# FinanceFlow - Project Summary
+# PesaTrucker - Project Summary
 
 ## 📦 Project Overview
 
-**FinanceFlow** is a production-ready, offline-first personal finance management web application built with vanilla JavaScript, IndexedDB, and Progressive Web App technology.
+**PesaTrucker** is a production-ready, offline-first personal finance management web application built with vanilla JavaScript, IndexedDB, and Progressive Web App technology.
 
 ### ✨ Key Highlights
 
@@ -429,7 +429,7 @@ This application is:
 
 ## 🎉 Conclusion
 
-FinanceFlow is a complete, production-ready personal finance management application that demonstrates modern web development best practices, offline-first architecture, and professional-grade features.
+PesaTrucker is a complete, production-ready personal finance management application that demonstrates modern web development best practices, offline-first architecture, and professional-grade features.
 
 **Ready to deploy, ready to use, ready to succeed!** 🚀
 

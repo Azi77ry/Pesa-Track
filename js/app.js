@@ -7,6 +7,8 @@ const App = {
     async init() {
         if (this.initialized) return;
 
+        await DB.init();
+
         // Try auto-login
         const loggedIn = await Auth.autoLogin();
         
@@ -41,6 +43,7 @@ const App = {
 
         // Update navbar username
         document.getElementById('nav-username').textContent = user.name || 'User';
+        this.updateUserAvatar(user.profileImage);
 
         // Load categories for dropdowns
         await this.loadCategories();
@@ -342,6 +345,17 @@ const App = {
     }
 };
 
+// Update sidebar avatar
+App.updateUserAvatar = function (imageData) {
+    const avatar = document.getElementById('sidebar-avatar');
+    if (!avatar) return;
+    if (imageData) {
+        avatar.innerHTML = `<img src="${imageData}" alt="Profile">`;
+    } else {
+        avatar.innerHTML = `<i class="bi bi-person"></i>`;
+    }
+};
+
 // View Management
 function showView(viewId) {
     // Hide all views
@@ -352,10 +366,36 @@ function showView(viewId) {
     // Show selected view
     document.getElementById(viewId).classList.remove('d-none');
 
-    // Update bottom nav active state
-    document.querySelectorAll('.bottom-nav-item').forEach(item => {
+    // Update sidebar active state and title
+    document.querySelectorAll('.side-nav-link').forEach(item => {
         item.classList.remove('active');
     });
+
+    const activeLink = document.querySelector(`.side-nav-link[data-view="${viewId}"]`);
+    if (activeLink) {
+        activeLink.classList.add('active');
+        const title = activeLink.getAttribute('data-title') || 'PesaTrucker';
+        const titleEl = document.getElementById('view-title');
+        if (titleEl) titleEl.textContent = title;
+    }
+
+    closeSidebar();
+}
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (!sidebar || !overlay) return;
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+}
+
+function closeSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (!sidebar || !overlay) return;
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
 }
 
 // Navigation Functions
@@ -404,23 +444,92 @@ function loadProfileView() {
     const userId = Auth.getCurrentUserId();
 
     document.getElementById('profile-content').innerHTML = `
-        <div class="mb-3">
-            <label class="form-label text-muted">Name</label>
-            <div class="fw-bold">${user.name}</div>
+        <div class="profile-avatar-section">
+            <div class="profile-avatar" id="profile-avatar-preview">
+                ${user.profileImage ? `<img src="${user.profileImage}" alt="Profile">` : '<i class="bi bi-person"></i>'}
+            </div>
+            <div class="profile-meta">
+                <div class="text-muted">User ID: ${userId}</div>
+                <div class="text-muted">Member Since: ${new Date(user.createdAt).toLocaleDateString()}</div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label text-muted">Email</label>
-            <div class="fw-bold">${user.email}</div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label text-muted">User ID</label>
-            <div class="fw-bold">${userId}</div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label text-muted">Member Since</label>
-            <div class="fw-bold">${new Date(user.createdAt).toLocaleDateString()}</div>
-        </div>
+        <form id="profile-form" onsubmit="handleProfileSave(event)">
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="profile-name" value="${user.name || ''}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="profile-email" value="${user.email || ''}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Profile Photo</label>
+                <input type="file" class="form-control" id="profile-image" accept="image/*">
+                <small class="text-muted">JPG/PNG up to 2MB recommended.</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">Save Changes</button>
+                <button type="button" class="btn btn-outline-secondary flex-fill" onclick="loadProfileView()">Reset</button>
+            </div>
+        </form>
     `;
+
+    const fileInput = document.getElementById('profile-image');
+    if (fileInput) {
+        fileInput.addEventListener('change', handleProfileImageChange);
+    }
+}
+
+let pendingProfileImage = null;
+
+function handleProfileImageChange(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('Image too large. Max 2MB.', 'error');
+        event.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        pendingProfileImage = reader.result;
+        const preview = document.getElementById('profile-avatar-preview');
+        if (preview) {
+            preview.innerHTML = `<img src="${pendingProfileImage}" alt="Profile">`;
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+async function handleProfileSave(event) {
+    event.preventDefault();
+    const user = Auth.getCurrentUser();
+    if (!user) return;
+
+    const name = document.getElementById('profile-name').value.trim();
+    const email = document.getElementById('profile-email').value.trim();
+
+    const updatedUser = {
+        ...user,
+        name,
+        email,
+        profileImage: pendingProfileImage || user.profileImage || null
+    };
+
+    try {
+        await DB.update('users', updatedUser);
+        Auth.currentUser = updatedUser;
+        localStorage.setItem('userName', updatedUser.name);
+        localStorage.setItem('userEmail', updatedUser.email);
+
+        document.getElementById('nav-username').textContent = updatedUser.name || 'User';
+        App.updateUserAvatar(updatedUser.profileImage);
+        pendingProfileImage = null;
+        showToast('Profile updated successfully', 'success');
+    } catch (error) {
+        showToast('Failed to update profile', 'error');
+    }
 }
 
 // Logout

@@ -1,4 +1,4 @@
-# FinanceFlow - Personal Finance Management App
+# PesaTrucker - Personal Finance Management App
 
 A production-ready, offline-first personal financial management web application built with vanilla JavaScript, IndexedDB, and Progressive Web App (PWA) technology.
 

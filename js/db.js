@@ -1,6 +1,6 @@
 // IndexedDB Database Module
 const DB = {
-    name: 'FinanceFlowDB',
+    name: 'PesaTruckerDB',
     version: 1,
     db: null,
 

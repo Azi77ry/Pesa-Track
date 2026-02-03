@@ -5,6 +5,7 @@ function showAddBillModal() {
     const modal = new bootstrap.Modal(document.getElementById('billModal'));
     const form = document.getElementById('billForm');
     
+    
     // Reset form
     form.reset();
     document.getElementById('bill-id').value = '';

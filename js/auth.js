@@ -5,7 +5,7 @@ const Auth = {
     // Simple hash function (for demo - in production use a proper library)
     async hashPassword(password) {
         const encoder = new TextEncoder();
-        const data = encoder.encode(password + 'FinanceFlowSalt');
+        const data = encoder.encode(password + 'PesaTruckerSalt');
         const hashBuffer = await crypto.subtle.digest('SHA-256', data);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -165,10 +165,19 @@ async function handleRegister(event) {
     const result = await Auth.register(name, email, password);
     
     if (result.success) {
-        showToast('Registration successful! Please activate your license.', 'success');
         Auth.currentUser = result.user;
         localStorage.setItem('currentUserId', result.user.id);
-        showActivationPage();
+        localStorage.setItem('userEmail', result.user.email);
+        localStorage.setItem('userName', result.user.name);
+
+        const trialResult = await License.startFreeTrial(result.user.id);
+        if (trialResult.success) {
+            showToast('Free 1-day trial activated!', 'success');
+            initApp();
+        } else {
+            showToast('Registration successful! Please activate your license.', 'success');
+            showActivationPage();
+        }
     } else {
         showToast(result.error, 'error');
     }

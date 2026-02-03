@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-FinanceFlow is built as an offline-first Progressive Web App with the following architecture:
+PesaTrucker is built as an offline-first Progressive Web App with the following architecture:
 
 ### Data Flow
 

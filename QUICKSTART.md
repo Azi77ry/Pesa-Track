@@ -1,4 +1,4 @@
-# 🚀 Quick Start Guide - FinanceFlow
+# 🚀 Quick Start Guide - PesaTrucker
 
 ## Getting Started in 5 Minutes
 
@@ -41,7 +41,7 @@ You'll be redirected to the activation page. For testing, use one of these codes
 
 In development mode, sample codes are auto-generated in the console.
 
-### Step 4: Start Using FinanceFlow!
+### Step 4: Start Using PesaTrucker!
 
 You're now ready to:
 - ✅ Add income and expenses
@@ -271,7 +271,7 @@ Plus:
 
 ## 🎉 You're Ready!
 
-You now know everything to effectively manage your finances with FinanceFlow.
+You now know everything to effectively manage your finances with PesaTrucker.
 
 **Remember:**
 - Works offline ✅
