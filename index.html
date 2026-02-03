@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Offline-first personal finance management application">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#6f66ff">
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
@@ -83,6 +83,10 @@
                         <i class="bi bi-receipt"></i>
                         <span>Bills</span>
                     </a>
+                    <a class="side-nav-link" href="#" data-view="events-view" data-title="Events" onclick="showEvents()">
+                        <i class="bi bi-calendar2-event"></i>
+                        <span>Events</span>
+                    </a>
                     <a class="side-nav-link" href="#" data-view="reports-view" data-title="Reports" onclick="showReports()">
                         <i class="bi bi-graph-up"></i>
                         <span>Reports</span>
@@ -95,13 +99,13 @@
                         <i class="bi bi-robot"></i>
                         <span>AI Assistant</span>
                     </a>
-                    <a class="side-nav-link" href="#" data-view="profile-view" data-title="Profile" onclick="showProfile()">
-                        <i class="bi bi-person-circle"></i>
-                        <span>Profile</span>
-                    </a>
                     <a class="side-nav-link" href="#" data-view="settings-view" data-title="Settings" onclick="showSettings()">
                         <i class="bi bi-gear"></i>
                         <span>Settings</span>
+                    </a>
+                    <a class="side-nav-link" href="#" data-view="profile-view" data-title="Profile" onclick="showProfile()">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Profile</span>
                     </a>
                     <a class="side-nav-link" href="#" data-view="license-view" data-title="License" onclick="showLicenseInfo()">
                         <i class="bi bi-shield-check"></i>
@@ -130,9 +134,17 @@
                 <div class="content-shell">
                     <!-- Dashboard View -->
                     <div id="dashboard-view" class="content-view">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
-                            <div>
+                        <div class="page-hero dashboard-hero mb-4">
+                            <div class="hero-content">
+                                <div class="hero-greeting">Welcome back</div>
+                                <h2 class="page-title mb-2"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+                                <div class="hero-balance">
+                                    <div class="hero-label">Total Balance</div>
+                                    <div class="hero-value" id="hero-current-balance">$0.00</div>
+                                    <div class="hero-meta">Monthly remaining <span id="monthly-remaining">$0.00</span></div>
+                                </div>
+                            </div>
+                            <div class="hero-actions">
                                 <button class="btn btn-success" onclick="showAddTransactionModal('income')">
                                     <i class="bi bi-plus-circle me-1"></i>Add Income
                                 </button>
@@ -143,9 +155,9 @@
                         </div>
 
                         <!-- Summary Cards -->
-                        <div class="row g-4 mb-4">
-                            <div class="col-md-3 col-sm-6">
-                                <div class="card summary-card income-card">
+                        <div class="row g-4 mb-4 stat-grid">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="card summary-card income-card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -159,8 +171,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="card summary-card expense-card">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="card summary-card expense-card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -174,8 +186,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="card summary-card balance-card">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="card summary-card balance-card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -189,28 +201,44 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-6">
-                                <div class="card summary-card remaining-card">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="text-muted mb-1">Monthly Remaining</p>
-                                                <h3 class="mb-0" id="monthly-remaining">$0.00</h3>
-                                            </div>
-                                            <div class="icon-box bg-info">
-                                                <i class="bi bi-calendar-month"></i>
-                                            </div>
-                                        </div>
-                                    </div>
+                        </div>
+
+                        <div class="quick-actions-grid mb-4">
+                            <button class="quick-action-tile" type="button" onclick="showAddTransactionModal('income')">
+                                <div class="tile-icon tile-icon-income">
+                                    <i class="bi bi-arrow-down-circle"></i>
                                 </div>
-                            </div>
+                                <div class="tile-title">Add Income</div>
+                                <div class="tile-subtitle">Record earnings</div>
+                            </button>
+                            <button class="quick-action-tile" type="button" onclick="showAddTransactionModal('expense')">
+                                <div class="tile-icon tile-icon-expense">
+                                    <i class="bi bi-arrow-up-circle"></i>
+                                </div>
+                                <div class="tile-title">Add Expense</div>
+                                <div class="tile-subtitle">Track spending</div>
+                            </button>
+                            <button class="quick-action-tile" type="button" onclick="showAddBudgetModal()">
+                                <div class="tile-icon tile-icon-budget">
+                                    <i class="bi bi-pie-chart"></i>
+                                </div>
+                                <div class="tile-title">Create Budget</div>
+                                <div class="tile-subtitle">Set a limit</div>
+                            </button>
+                            <button class="quick-action-tile" type="button" onclick="showAddBillModal()">
+                                <div class="tile-icon tile-icon-bill">
+                                    <i class="bi bi-receipt"></i>
+                                </div>
+                                <div class="tile-title">Add Bill</div>
+                                <div class="tile-subtitle">Never miss due</div>
+                            </button>
                         </div>
 
                         <div class="row g-4">
                             <!-- Recent Transactions -->
                             <div class="col-lg-8">
-                                <div class="card">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Recent Transactions</h5>
                                     </div>
                                     <div class="card-body">
@@ -223,8 +251,8 @@
 
                             <!-- Upcoming Bills & Budget Alerts -->
                             <div class="col-lg-4">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card mb-4">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Upcoming Bills</h5>
                                     </div>
                                     <div class="card-body">
@@ -234,13 +262,24 @@
                                     </div>
                                 </div>
 
-                                <div class="card">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Budget Alerts</h5>
                                     </div>
                                     <div class="card-body">
                                         <div id="budget-alerts-list">
                                             <!-- Populated by JavaScript -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card panel-card mt-4">
+                                    <div class="card-header bg-white panel-header">
+                                        <h5 class="mb-0">Weekly Expenses</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chart-wrap">
+                                            <canvas id="weeklyExpenseChart"></canvas>
                                         </div>
                                     </div>
                                 </div>
@@ -250,9 +289,13 @@
 
                     <!-- Transactions View -->
                     <div id="transactions-view" class="content-view d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="mb-0"><i class="bi bi-currency-exchange me-2"></i>Transactions</h2>
+                        <div class="page-hero mb-4">
                             <div>
+                                <div class="hero-greeting">Track every move</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-currency-exchange me-2"></i>Transactions</h2>
+                                <div class="hero-subtitle">Monitor cash flow, categories, and notes.</div>
+                            </div>
+                            <div class="hero-actions">
                                 <button class="btn btn-success" onclick="showAddTransactionModal('income')">
                                     <i class="bi bi-plus-circle me-1"></i>Add Income
                                 </button>
@@ -263,7 +306,7 @@
                         </div>
 
                         <!-- Filters -->
-                        <div class="card mb-4">
+                        <div class="card panel-card mb-4">
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-md-3">
@@ -299,7 +342,7 @@
                         </div>
 
                         <!-- Transactions List -->
-                        <div class="card">
+                        <div class="card panel-card">
                             <div class="card-body">
                                 <div id="transactions-list">
                                     <!-- Populated by JavaScript -->
@@ -310,40 +353,86 @@
 
                     <!-- Budgets View -->
                     <div id="budgets-view" class="content-view d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Budgets</h2>
-                            <button class="btn btn-primary" onclick="showAddBudgetModal()">
-                                <i class="bi bi-plus-circle me-1"></i>Add Budget
-                            </button>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Plan your month</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-pie-chart me-2"></i>Budgets</h2>
+                                <div class="hero-subtitle">Set limits and track category spending.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-primary" onclick="showAddBudgetModal()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Budget
+                                </button>
+                            </div>
                         </div>
 
-                        <div id="budgets-list" class="row g-4">
+                        <div id="budgets-list" class="row g-4 tile-grid">
                             <!-- Populated by JavaScript -->
                         </div>
                     </div>
 
                     <!-- Bills View -->
                     <div id="bills-view" class="content-view d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="mb-0"><i class="bi bi-receipt me-2"></i>Bills & Payments</h2>
-                            <button class="btn btn-primary" onclick="showAddBillModal()">
-                                <i class="bi bi-plus-circle me-1"></i>Add Bill
-                            </button>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Stay ahead</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-receipt me-2"></i>Bills & Payments</h2>
+                                <div class="hero-subtitle">Keep due dates and statuses organized.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-primary" onclick="showAddBillModal()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Bill
+                                </button>
+                            </div>
                         </div>
 
-                        <div id="bills-list">
-                            <!-- Populated by JavaScript -->
+                        <div class="card panel-card">
+                            <div class="card-body">
+                                <div id="bills-list">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Events View -->
+                    <div id="events-view" class="content-view d-none">
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Plan your day</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-calendar2-event me-2"></i>Events</h2>
+                                <div class="hero-subtitle">Schedule activities and reminders.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-primary" onclick="showAddEventModal()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Event
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card panel-card">
+                            <div class="card-body">
+                                <div id="events-list">
+                                    <!-- Populated by JavaScript -->
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Reports View -->
                     <div id="reports-view" class="content-view d-none">
-                        <h2 class="mb-4"><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h2>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Visual insights</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h2>
+                                <div class="hero-subtitle">Explore trends and category distribution.</div>
+                            </div>
+                        </div>
 
                         <div class="row g-4">
                             <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Expenses by Category</h5>
                                     </div>
                                     <div class="card-body">
@@ -352,8 +441,8 @@
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="card">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Monthly Spending Trend</h5>
                                     </div>
                                     <div class="card-body">
@@ -362,8 +451,8 @@
                                 </div>
                             </div>
                             <div class="col-lg-12">
-                                <div class="card">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Income vs Expenses</h5>
                                     </div>
                                     <div class="card-body">
@@ -376,10 +465,16 @@
 
                     <!-- Profile View -->
                     <div id="profile-view" class="content-view d-none">
-                        <h2 class="mb-4"><i class="bi bi-person-circle me-2"></i>Profile</h2>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Your details</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-person-circle me-2"></i>Profile</h2>
+                                <div class="hero-subtitle">Update your personal and account info.</div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="card">
+                                <div class="card panel-card">
                                     <div class="card-body">
                                         <div id="profile-content">
                                             <!-- Populated by JavaScript -->
@@ -392,11 +487,17 @@
 
                     <!-- Settings View -->
                     <div id="settings-view" class="content-view d-none">
-                        <h2 class="mb-4"><i class="bi bi-gear me-2"></i>Settings</h2>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Make it yours</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-gear me-2"></i>Settings</h2>
+                                <div class="hero-subtitle">Tune preferences, themes, and categories.</div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-8">
-                                <div class="card mb-4">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card mb-4">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">General Settings</h5>
                                     </div>
                                     <div class="card-body">
@@ -429,8 +530,8 @@
                                     </div>
                                 </div>
 
-                                <div class="card">
-                                    <div class="card-header bg-white">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Categories Management</h5>
                                     </div>
                                     <div class="card-body">
@@ -443,17 +544,7 @@
                                     </div>
                                 </div>
 
-                                <div class="card">
-                                    <div class="card-header bg-white">
-                                        <h5 class="mb-0">About & Support</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-2 fw-bold">Aziry Tech</div>
-                                        <div class="text-muted">Owner/Developer: Azizi</div>
-                                        <div class="text-muted">Phone: +255692350076</div>
-                                        <div class="text-muted">Email: aziziiddi555@gmail.com</div>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -505,6 +596,18 @@
                                             <li>Switch themes anytime from Settings.</li>
                                             <li>Data is stored locally for offline-first use.</li>
                                         </ul>
+                                    </div>
+                                </div>
+
+                                <div class="card help-card help-card-primary mt-4">
+                                    <div class="card-header bg-white">
+                                        <h5 class="mb-0">About & Support</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-2 fw-bold">Aziry Tech</div>
+                                        <div class="text-muted">Owner/Developer: Azizi</div>
+                                        <div class="text-muted">Phone: +255692350076</div>
+                                        <div class="text-muted">Email: aziziiddi555@gmail.com</div>
                                     </div>
                                 </div>
                             </div>
@@ -576,12 +679,24 @@
                             </button>
                         </div>
 
-                        <div class="card">
+                        <div class="card panel-card mb-4">
                             <div class="card-body">
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-search"></i></span>
                                     <input type="text" id="ai-search" class="form-control" placeholder="Search answers...">
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="card panel-card mb-4">
+                            <div class="card-body">
+                                <form class="ai-inline-form" onsubmit="handleAiInlineSubmit(event)">
+                                    <input type="text" id="ai-inline-text" class="form-control" placeholder="Ask a question..." required>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="bi bi-send me-1"></i>Send
+                                    </button>
+                                </form>
+                                <div class="ai-inline-body" id="ai-inline-body"></div>
                             </div>
                         </div>
 
@@ -712,6 +827,7 @@
                         </p>
                     </form>
                 </div>
+
             </div>
         </div>
     </div>
@@ -726,14 +842,57 @@
                 </div>
                 <div class="modal-body">
                     <p class="mb-3">PesaTrucker works offline and stores your data locally in your browser.</p>
-                    <ul class="mb-0">
+                    <ul class="mb-3">
                         <li class="mb-2">Register to create your account.</li>
                         <li class="mb-2">Login to access dashboards and reports.</li>
                         <li>Need help later? Use the Help section from the navigation.</li>
                     </ul>
+                    <div class="help-support">
+                        <div class="fw-bold mb-1">About & Support</div>
+                        <div class="text-muted">Aziry Tech</div>
+                        <div class="text-muted">Owner/Developer: Azizi</div>
+                        <div class="text-muted">Phone: +255692350076</div>
+                        <div class="text-muted">Email: aziziiddi555@gmail.com</div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-calendar2-event me-2"></i>Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm" onsubmit="handleEventSubmit(event)">
+                        <input type="hidden" id="event-id">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" id="event-title" required>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="event-date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Time</label>
+                                <input type="time" class="form-control" id="event-time">
+                            </div>
+                        </div>
+                        <div class="mb-3 mt-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" id="event-notes" rows="3" placeholder="Optional notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Event</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1001,7 +1160,7 @@
     </div>
 
     <!-- Toast Notification -->
-    <div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast-container position-fixed toast-center p-3">
         <div id="toast" class="toast" role="alert">
             <div class="toast-header">
                 <i class="bi bi-check-circle text-success me-2"></i>
@@ -1030,6 +1189,7 @@
     <script src="js/transactions.js"></script>
     <script src="js/budgets.js"></script>
     <script src="js/bills.js"></script>
+    <script src="js/events.js"></script>
     <script src="js/reports.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/sync.js"></script>

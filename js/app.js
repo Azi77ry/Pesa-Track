@@ -153,6 +153,11 @@ const App = {
         document.getElementById('current-balance').textContent = this.formatCurrency(currentBalance, currency);
         document.getElementById('monthly-remaining').textContent = this.formatCurrency(monthlyRemaining, currency);
 
+        const heroBalance = document.getElementById('hero-current-balance');
+        if (heroBalance) heroBalance.textContent = this.formatCurrency(currentBalance, currency);
+
+        await this.loadWeeklyExpenseChart(transactions, currency);
+
         // Load recent transactions
         await this.loadRecentTransactions();
 
@@ -161,6 +166,102 @@ const App = {
 
         // Load budget alerts
         await this.loadBudgetAlerts();
+    },
+
+    async loadWeeklyExpenseChart(transactions, currency) {
+        const ctx = document.getElementById('weeklyExpenseChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+
+        const today = new Date();
+        const labels = [];
+        const dateLabels = [];
+        const totals = [];
+        const dateKeyMap = {};
+
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(today.getDate() - i);
+            const key = date.toDateString();
+            labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+            dateLabels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            dateKeyMap[key] = labels.length - 1;
+            totals.push(0);
+        }
+
+        transactions
+            .filter(t => t.type === 'expense')
+            .forEach(t => {
+                const date = new Date(t.date);
+                const key = date.toDateString();
+                const index = dateKeyMap[key];
+                if (index !== undefined) {
+                    totals[index] += parseFloat(t.amount);
+                }
+            });
+
+        if (this.weeklyExpenseChart) {
+            this.weeklyExpenseChart.destroy();
+        }
+
+        this.weeklyExpenseChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Daily Expenses',
+                        data: totals,
+                        borderColor: '#7c6bff',
+                        backgroundColor: 'rgba(124, 107, 255, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#7c6bff',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(items) {
+                                if (!items || !items.length) return '';
+                                const index = items[0].dataIndex;
+                                return `${labels[index]} • ${dateLabels[index]}`;
+                            },
+                            label: function(context) {
+                                return `Expenses: ${currency}${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(124, 107, 255, 0.12)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return currency + value.toFixed(0);
+                            }
+                        }
+                    }
+                }
+            }
+        });
     },
 
     // Load Recent Transactions
@@ -417,6 +518,11 @@ function showBudgets() {
 function showBills() {
     showView('bills-view');
     loadBillsView();
+}
+
+function showEvents() {
+    showView('events-view');
+    loadEventsView();
 }
 
 function showReports() {

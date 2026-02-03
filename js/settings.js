@@ -36,16 +36,48 @@ async function saveSetting(key, value) {
         showToast('Theme updated', 'success');
     } else if (key === 'currency') {
         showToast('Currency updated', 'success');
-        // Reload current view to show new currency
-        if (!document.getElementById('dashboard-view').classList.contains('d-none')) {
-            App.loadDashboard();
-        }
+        reloadActiveViewForCurrency();
     } else if (key === 'notifications') {
         showToast(value ? 'Notifications enabled' : 'Notifications disabled', 'success');
     }
     
     // Add to sync queue
     await addToSyncQueue('settings', settings);
+}
+
+function reloadActiveViewForCurrency() {
+    const activeView = document.querySelector('.content-view:not(.d-none)');
+    const viewId = activeView ? activeView.id : '';
+
+    switch (viewId) {
+        case 'dashboard-view':
+            App.loadDashboard();
+            break;
+        case 'transactions-view':
+            loadTransactionsView();
+            break;
+        case 'budgets-view':
+            loadBudgetsView();
+            break;
+        case 'bills-view':
+            loadBillsView();
+            break;
+        case 'events-view':
+            loadEventsView();
+            break;
+        case 'reports-view':
+            loadReportsView();
+            break;
+        case 'profile-view':
+            loadProfileView();
+            break;
+        case 'settings-view':
+            loadSettingsView();
+            break;
+        default:
+            App.loadDashboard();
+            break;
+    }
 }
 
 // Load Categories List

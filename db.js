@@ -1,7 +1,7 @@
 // IndexedDB Database Module
 const DB = {
     name: 'PesaTruckerDB',
-    version: 1,
+    version: 4,
     db: null,
 
     // Initialize Database
@@ -65,6 +65,14 @@ const DB = {
                 // License Store
                 if (!db.objectStoreNames.contains('license')) {
                     db.createObjectStore('license', { keyPath: 'userId' });
+                }
+
+                // Events Store
+                if (!db.objectStoreNames.contains('events')) {
+                    const eventStore = db.createObjectStore('events', { keyPath: 'id', autoIncrement: true });
+                    eventStore.createIndex('userId', 'userId', { unique: false });
+                    eventStore.createIndex('date', 'date', { unique: false });
+                    eventStore.createIndex('datetime', 'datetime', { unique: false });
                 }
             };
         });
@@ -158,6 +166,10 @@ const DB = {
 
     async getUserCategories(userId) {
         return this.getAllByIndex('categories', 'userId', userId);
+    },
+
+    async getUserEvents(userId) {
+        return this.getAllByIndex('events', 'userId', userId);
     },
 
     async getUserSettings(userId) {

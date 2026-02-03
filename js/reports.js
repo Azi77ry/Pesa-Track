@@ -7,15 +7,17 @@ async function loadReportsView() {
     const userId = parseInt(Auth.getCurrentUserId());
     const transactions = await DB.getUserTransactions(userId);
     const categories = await DB.getUserCategories(userId);
+    const settings = await DB.getUserSettings(userId);
+    const currency = App.getCurrencySymbol(settings?.currency || 'USD');
     
     // Load all charts
-    await loadCategoryChart(transactions, categories);
-    await loadTrendChart(transactions);
-    await loadComparisonChart(transactions);
+    await loadCategoryChart(transactions, categories, currency);
+    await loadTrendChart(transactions, currency);
+    await loadComparisonChart(transactions, currency);
 }
 
 // Category Pie Chart
-async function loadCategoryChart(transactions, categories) {
+async function loadCategoryChart(transactions, categories, currency) {
     const expenses = transactions.filter(t => t.type === 'expense');
     
     // Group by category
@@ -79,7 +81,7 @@ async function loadCategoryChart(transactions, categories) {
                             const value = context.parsed || 0;
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const percentage = ((value / total) * 100).toFixed(1);
-                            return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+                            return `${label}: ${currency}${value.toFixed(2)} (${percentage}%)`;
                         }
                     }
                 }
@@ -89,7 +91,7 @@ async function loadCategoryChart(transactions, categories) {
 }
 
 // Monthly Trend Line Chart
-async function loadTrendChart(transactions) {
+async function loadTrendChart(transactions, currency) {
     const now = new Date();
     const months = [];
     const incomeData = [];
@@ -164,7 +166,7 @@ async function loadTrendChart(transactions) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `${context.dataset.label}: $${context.parsed.y.toFixed(2)}`;
+                            return `${context.dataset.label}: ${currency}${context.parsed.y.toFixed(2)}`;
                         }
                     }
                 }
@@ -174,7 +176,7 @@ async function loadTrendChart(transactions) {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toFixed(0);
+                            return currency + value.toFixed(0);
                         }
                     }
                 }
@@ -184,7 +186,7 @@ async function loadTrendChart(transactions) {
 }
 
 // Income vs Expenses Comparison Bar Chart
-async function loadComparisonChart(transactions) {
+async function loadComparisonChart(transactions, currency) {
     const now = new Date();
     const months = [];
     const incomeData = [];
@@ -251,7 +253,7 @@ async function loadComparisonChart(transactions) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `${context.dataset.label}: $${context.parsed.y.toFixed(2)}`;
+                            return `${context.dataset.label}: ${currency}${context.parsed.y.toFixed(2)}`;
                         }
                     }
                 }
@@ -261,7 +263,7 @@ async function loadComparisonChart(transactions) {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toFixed(0);
+                            return currency + value.toFixed(0);
                         }
                     }
                 }
