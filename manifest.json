@@ -2,20 +2,21 @@
   "name": "PesaTrucker - Personal Finance Manager",
   "short_name": "PesaTrucker",
   "description": "Offline-first personal finance management application",
-  "start_url": "/index.html",
+  "start_url": "/Pesa-Track/",
+  "scope": "/Pesa-Track/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/assets/icon144.png",
+      "src": "assets/icon144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/assets/icon192.png",
+      "src": "assets/icon192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"

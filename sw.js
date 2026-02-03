@@ -1,35 +1,36 @@
 // Service Worker for PesaTrucker PWA
-const CACHE_NAME = 'pesatrucker-v13';
+const CACHE_NAME = 'pesatrucker-v14';
+const BASE_PATH = '/Pesa-Track';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/css/styles.css',
-    '/css/themes.css',
-    '/vendor/bootstrap/css/bootstrap.min.css',
-    '/vendor/bootstrap-icons/bootstrap-icons.min.css',
-    '/vendor/bootstrap-icons/bootstrap-icons.min.css.map',
-    '/vendor/bootstrap-icons/font/bootstrap-icons.woff2',
-    '/vendor/bootstrap-icons/font/bootstrap-icons.woff',
-    '/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2',
-    '/vendor/bootstrap-icons/fonts/bootstrap-icons.woff',
-    '/vendor/bootstrap/js/bootstrap.bundle.min.js',
-    '/vendor/bootstrap/js/bootstrap.bundle.min.js.map',
-    '/vendor/chartjs/chart.umd.min.js',
-    '/vendor/chartjs/chart.umd.js.map',
-    '/vendor/bootstrap/css/bootstrap.min.css.map',
-    '/js/db.js',
-    '/js/auth.js',
-    '/js/license-keys.js',
-    '/js/license.js',
-    '/js/app.js',
-    '/js/transactions.js',
-    '/js/budgets.js',
-    '/js/bills.js',
-    '/js/reports.js',
-    '/js/settings.js',
-    '/js/sync.js',
-    '/assets/icon192.png',
-    '/assets/icon144.png'
+    `${BASE_PATH}/`,
+    `${BASE_PATH}/index.html`,
+    `${BASE_PATH}/css/styles.css`,
+    `${BASE_PATH}/css/themes.css`,
+    `${BASE_PATH}/vendor/bootstrap/css/bootstrap.min.css`,
+    `${BASE_PATH}/vendor/bootstrap-icons/bootstrap-icons.min.css`,
+    `${BASE_PATH}/vendor/bootstrap-icons/bootstrap-icons.min.css.map`,
+    `${BASE_PATH}/vendor/bootstrap-icons/font/bootstrap-icons.woff2`,
+    `${BASE_PATH}/vendor/bootstrap-icons/font/bootstrap-icons.woff`,
+    `${BASE_PATH}/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2`,
+    `${BASE_PATH}/vendor/bootstrap-icons/fonts/bootstrap-icons.woff`,
+    `${BASE_PATH}/vendor/bootstrap/js/bootstrap.bundle.min.js`,
+    `${BASE_PATH}/vendor/bootstrap/js/bootstrap.bundle.min.js.map`,
+    `${BASE_PATH}/vendor/chartjs/chart.umd.min.js`,
+    `${BASE_PATH}/vendor/chartjs/chart.umd.js.map`,
+    `${BASE_PATH}/vendor/bootstrap/css/bootstrap.min.css.map`,
+    `${BASE_PATH}/js/db.js`,
+    `${BASE_PATH}/js/auth.js`,
+    `${BASE_PATH}/js/license-keys.js`,
+    `${BASE_PATH}/js/license.js`,
+    `${BASE_PATH}/js/app.js`,
+    `${BASE_PATH}/js/transactions.js`,
+    `${BASE_PATH}/js/budgets.js`,
+    `${BASE_PATH}/js/bills.js`,
+    `${BASE_PATH}/js/reports.js`,
+    `${BASE_PATH}/js/settings.js`,
+    `${BASE_PATH}/js/sync.js`,
+    `${BASE_PATH}/assets/icon192.png`,
+    `${BASE_PATH}/assets/icon144.png`
 ];
 
 // Install Service Worker
@@ -120,8 +121,8 @@ async function syncData() {
 self.addEventListener('push', event => {
     const options = {
         body: event.data ? event.data.text() : 'New notification',
-        icon: '/assets/icon192.png',
-        badge: '/assets/icon192.png',
+        icon: `${BASE_PATH}/assets/icon192.png`,
+        badge: `${BASE_PATH}/assets/icon192.png`,
         vibrate: [200, 100, 200]
     };
 
@@ -134,6 +135,6 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
     event.notification.close();
     event.waitUntil(
-        clients.openWindow('/')
+        clients.openWindow(`${BASE_PATH}/`)
     );
 });
