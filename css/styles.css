@@ -1,0 +1,521 @@
+/* FinanceFlow - Main Styles */
+:root {
+    --primary-color: #0f172a;
+    --secondary-color: #1e293b;
+    --accent-color: #3b82f6;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --info-color: #06b6d4;
+    --light-bg: #f8fafc;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--light-bg);
+    color: #1e293b;
+    line-height: 1.6;
+}
+
+/* Navbar Styling */
+.navbar {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff !important;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 0.5rem 1rem !important;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+}
+
+/* Summary Cards */
+.summary-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    overflow: hidden;
+    position: relative;
+}
+
+.summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color), var(--info-color));
+}
+
+.summary-card.income-card::before {
+    background: linear-gradient(90deg, var(--success-color), #059669);
+}
+
+.summary-card.expense-card::before {
+    background: linear-gradient(90deg, var(--danger-color), #dc2626);
+}
+
+.summary-card.balance-card::before {
+    background: linear-gradient(90deg, var(--accent-color), #2563eb);
+}
+
+.summary-card.remaining-card::before {
+    background: linear-gradient(90deg, var(--info-color), #0891b2);
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 2px solid var(--light-bg);
+    padding: 1.25rem;
+    font-weight: 600;
+}
+
+/* Transaction Item */
+.transaction-item {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.transaction-item:last-child {
+    border-bottom: none;
+}
+
+.transaction-item:hover {
+    background-color: var(--light-bg);
+}
+
+.transaction-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-right: 1rem;
+}
+
+.transaction-income .transaction-icon {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.transaction-expense .transaction-icon {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+}
+
+.transaction-amount {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.transaction-income .transaction-amount {
+    color: var(--success-color);
+}
+
+.transaction-expense .transaction-amount {
+    color: var(--danger-color);
+}
+
+/* Budget Card */
+.budget-card {
+    border-left: 4px solid var(--accent-color);
+}
+
+.budget-progress {
+    height: 8px;
+    border-radius: 1rem;
+    margin: 1rem 0;
+}
+
+.budget-card.warning {
+    border-left-color: var(--warning-color);
+}
+
+.budget-card.danger {
+    border-left-color: var(--danger-color);
+}
+
+/* Bill Item */
+.bill-item {
+    padding: 1rem;
+    border-left: 4px solid var(--info-color);
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    transition: var(--transition);
+}
+
+.bill-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bill-item.overdue {
+    border-left-color: var(--danger-color);
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+.bill-item.paid {
+    border-left-color: var(--success-color);
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-color), #2563eb);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    color: #fff;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5rem 0;
+    z-index: 1000;
+}
+
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    color: #64748b;
+    text-decoration: none;
+    transition: var(--transition);
+    flex: 1;
+}
+
+.bottom-nav-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.bottom-nav-item span {
+    font-size: 0.75rem;
+}
+
+.bottom-nav-item.active,
+.bottom-nav-item:hover {
+    color: var(--accent-color);
+}
+
+/* Auth Container */
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+}
+
+.auth-card {
+    background: #fff;
+    border-radius: 1.5rem;
+    padding: 3rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 100%;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-card h2 {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.auth-card .form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 2px solid #e2e8f0;
+    transition: var(--transition);
+}
+
+.auth-card .form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    border-radius: 0.5rem;
+    border: 2px solid #e2e8f0;
+    padding: 0.625rem 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    border-bottom: 2px solid var(--light-bg);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Toast */
+.toast {
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Badges */
+.badge {
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+/* Alert */
+.alert {
+    border-radius: 0.75rem;
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+/* Progress Bar */
+.progress {
+    height: 10px;
+    border-radius: 1rem;
+    background-color: #e2e8f0;
+}
+
+.progress-bar {
+    border-radius: 1rem;
+    transition: width 0.6s ease;
+}
+
+/* Category Badge */
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: var(--light-bg);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #94a3b8;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 2rem;
+    }
+
+    main {
+        padding-bottom: 80px !important;
+    }
+
+    .summary-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
+    }
+}
+
+/* Utility Classes */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Content Views */
+.content-view {
+    animation: fadeIn 0.3s ease;
+}
