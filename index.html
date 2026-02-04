@@ -114,6 +114,9 @@
                 </nav>
 
                 <div class="sidebar-footer">
+                    <button class="btn btn-primary w-100 mb-2 d-none" id="install-app-btn" type="button">
+                        <i class="bi bi-download me-2"></i>Install App
+                    </button>
                     <button class="btn btn-outline-secondary w-100" type="button" onclick="logout()">
                         <i class="bi bi-box-arrow-right me-2"></i>Logout
                     </button>
@@ -129,29 +132,27 @@
                         <i class="bi bi-list"></i>
                     </button>
                     <div class="mobile-title" id="view-title">Dashboard</div>
+                    <button class="icon-button d-none" type="button" id="install-app-btn-mobile" aria-label="Install App">
+                        <i class="bi bi-download"></i>
+                    </button>
                 </div>
 
                 <div class="content-shell">
                     <!-- Dashboard View -->
                     <div id="dashboard-view" class="content-view">
+                        <div class="dashboard-app-title">Pesa Trucker</div>
                         <div class="page-hero dashboard-hero mb-4">
                             <div class="hero-content">
-                                <div class="hero-greeting">Welcome back</div>
-                                <h2 class="page-title mb-2"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+                                <div class="hero-greeting">Welcome back, <span id="hero-username">User</span></div>
+                                <div class="hero-title">Dashboard</div>
                                 <div class="hero-balance">
                                     <div class="hero-label">Total Balance</div>
                                     <div class="hero-value" id="hero-current-balance">$0.00</div>
-                                    <div class="hero-meta">Monthly remaining <span id="monthly-remaining">$0.00</span></div>
                                 </div>
                             </div>
-                            <div class="hero-actions">
-                                <button class="btn btn-success" onclick="showAddTransactionModal('income')">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Income
-                                </button>
-                                <button class="btn btn-danger ms-2" onclick="showAddTransactionModal('expense')">
-                                    <i class="bi bi-dash-circle me-1"></i>Add Expense
-                                </button>
-                            </div>
+                            <button class="hero-plus" type="button" onclick="showAddTransactionModal('income')" aria-label="Add transaction">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
                         </div>
 
                         <!-- Summary Cards -->

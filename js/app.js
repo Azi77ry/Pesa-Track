@@ -29,6 +29,7 @@ const App = {
 
             // Setup notifications
             this.setupNotifications();
+            this.setupInstallPrompt();
 
             this.initialized = true;
         } else {
@@ -150,11 +151,30 @@ const App = {
         // Update summary cards
         document.getElementById('total-income').textContent = this.formatCurrency(totalIncome, currency);
         document.getElementById('total-expenses').textContent = this.formatCurrency(totalExpenses, currency);
-        document.getElementById('current-balance').textContent = this.formatCurrency(currentBalance, currency);
-        document.getElementById('monthly-remaining').textContent = this.formatCurrency(monthlyRemaining, currency);
+
+        const currentBalanceEl = document.getElementById('current-balance');
+        if (currentBalanceEl) {
+            currentBalanceEl.textContent = this.formatCurrency(currentBalance, currency);
+        }
+
+        const monthlyRemainingEl = document.getElementById('monthly-remaining');
+        if (monthlyRemainingEl) {
+            monthlyRemainingEl.textContent = this.formatCurrency(monthlyRemaining, currency);
+        }
 
         const heroBalance = document.getElementById('hero-current-balance');
-        if (heroBalance) heroBalance.textContent = this.formatCurrency(currentBalance, currency);
+        if (heroBalance) {
+            heroBalance.textContent = currentBalanceEl
+                ? currentBalanceEl.textContent
+                : this.formatCurrency(currentBalance, currency);
+        }
+
+        const heroUser = document.getElementById('hero-username');
+        if (heroUser) {
+            const user = Auth.getCurrentUser();
+            const storedName = localStorage.getItem('userName') || sessionStorage.getItem('userName');
+            heroUser.textContent = (user && user.name) ? user.name : (storedName || 'User');
+        }
 
         await this.loadWeeklyExpenseChart(transactions, currency);
 
@@ -442,6 +462,49 @@ const App = {
     setupNotifications() {
         if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission();
+        }
+    },
+
+    setupInstallPrompt() {
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('install-app-btn');
+        const installBtnMobile = document.getElementById('install-app-btn-mobile');
+
+        const hideInstall = () => {
+            if (installBtn) installBtn.classList.add('d-none');
+            if (installBtnMobile) installBtnMobile.classList.add('d-none');
+        };
+
+        const showInstall = () => {
+            if (installBtn) installBtn.classList.remove('d-none');
+            if (installBtnMobile) installBtnMobile.classList.remove('d-none');
+        };
+
+        const handleInstallClick = async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            hideInstall();
+        };
+
+        if (installBtn) installBtn.addEventListener('click', handleInstallClick);
+        if (installBtnMobile) installBtnMobile.addEventListener('click', handleInstallClick);
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            deferredPrompt = event;
+            showInstall();
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            hideInstall();
+            showToast('App installed successfully', 'success');
+        });
+
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            hideInstall();
         }
     }
 };

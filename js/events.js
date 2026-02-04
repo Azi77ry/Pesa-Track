@@ -3,8 +3,9 @@
 let eventReminderTimer = null;
 
 async function loadEventsView() {
+    if (!ensureEventsStore()) return;
     const userId = parseInt(Auth.getCurrentUserId());
-    const events = await DB.getUserEvents(userId);
+    const events = await getUserEventsSafe(userId);
 
     renderEvents(events);
     startEventReminderLoop();
@@ -53,6 +54,7 @@ function showAddEventModal() {
 }
 
 async function editEvent(id) {
+    if (!ensureEventsStore()) return;
     const evt = await DB.get('events', id);
     if (!evt) return;
     openEventModal(evt);
@@ -77,6 +79,7 @@ function openEventModal(evt = null) {
 async function handleEventSubmit(event) {
     event.preventDefault();
 
+    if (!ensureEventsStore()) return;
     const userId = parseInt(Auth.getCurrentUserId());
     const id = document.getElementById('event-id').value;
     const title = document.getElementById('event-title').value.trim();
@@ -119,6 +122,7 @@ async function handleEventSubmit(event) {
 }
 
 async function deleteEvent(id) {
+    if (!ensureEventsStore()) return;
     if (!confirm('Delete this event?')) return;
     await DB.delete('events', id);
     showToast('Event deleted', 'success');
@@ -148,11 +152,12 @@ function startEventReminderLoop() {
 async function checkEventReminders() {
     const userId = parseInt(Auth.getCurrentUserId());
     if (!userId) return;
+    if (!ensureEventsStore(false)) return;
 
     const settings = await DB.getUserSettings(userId);
     if (settings && settings.notifications === false) return;
 
-    const events = await DB.getUserEvents(userId);
+    const events = await getUserEventsSafe(userId);
     const now = new Date();
     const windowMs = 15 * 60 * 1000;
 
@@ -185,4 +190,22 @@ async function notifyEvent(evt) {
     } else {
         showToast(body, 'success');
     }
+}
+
+function ensureEventsStore(showMessage = true) {
+    if (!DB || !DB.db) {
+        if (showMessage) showToast('Events storage is not ready. Please refresh.', 'error');
+        return false;
+    }
+    if (!DB.db.objectStoreNames.contains('events')) {
+        if (showMessage) showToast('Events storage missing. Please refresh and reload the app.', 'error');
+        return false;
+    }
+    return true;
+}
+
+async function getUserEventsSafe(userId) {
+    if (DB.getUserEvents) return DB.getUserEvents(userId);
+    if (DB.getAllByIndex) return DB.getAllByIndex('events', 'userId', userId);
+    return [];
 }
