@@ -207,7 +207,7 @@ const DB = {
     async initDefaultSettings(userId) {
         const defaultSettings = {
             userId,
-            currency: 'USD',
+            currency: 'TSH',
             theme: 'light',
             notifications: true,
             language: 'en'

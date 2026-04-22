@@ -8,7 +8,7 @@ async function loadSettingsView() {
     
     // Set form values
     if (settings) {
-        document.getElementById('setting-currency').value = settings.currency || 'USD';
+        document.getElementById('setting-currency').value = settings.currency || 'TZS';
         document.getElementById('setting-theme').value = settings.theme || 'light';
         document.getElementById('setting-notifications').checked = settings.notifications !== false;
     }

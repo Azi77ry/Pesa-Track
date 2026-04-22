@@ -45,97 +45,39 @@
     <!-- Main Container -->
     <div id="app-container" class="d-none">
         <div class="app-shell">
-            <aside class="sidebar" id="app-sidebar">
-                <div class="sidebar-brand" onclick="showDashboard()">
-                    <div class="brand-mark">
-                        <img src="assets/icon192.png" alt="PesaTrucker">
-                    </div>
-                    <div>
-                        <div class="brand-title">PesaTrucker</div>
-                        <div class="brand-subtitle">Offline Finance</div>
-                    </div>
-                </div>
-
-                <div class="sidebar-user">
-                    <div class="user-avatar" id="sidebar-avatar">
-                        <i class="bi bi-person"></i>
-                    </div>
-                    <div>
-                        <div class="user-name" id="nav-username">User</div>
-                        <div class="user-role">Account</div>
-                    </div>
-                </div>
-
-                <nav class="sidebar-nav">
-                    <a class="side-nav-link active" href="#" data-view="dashboard-view" data-title="Dashboard" onclick="showDashboard()">
-                        <i class="bi bi-speedometer2"></i>
-                        <span>Dashboard</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="transactions-view" data-title="Transactions" onclick="showTransactions()">
-                        <i class="bi bi-currency-exchange"></i>
-                        <span>Transactions</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="budgets-view" data-title="Budgets" onclick="showBudgets()">
-                        <i class="bi bi-pie-chart"></i>
-                        <span>Budgets</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="bills-view" data-title="Bills & Payments" onclick="showBills()">
-                        <i class="bi bi-receipt"></i>
-                        <span>Bills</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="events-view" data-title="Events" onclick="showEvents()">
-                        <i class="bi bi-calendar2-event"></i>
-                        <span>Events</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="reports-view" data-title="Reports" onclick="showReports()">
-                        <i class="bi bi-graph-up"></i>
-                        <span>Reports</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="help-view" data-title="Help Center" onclick="showHelp()">
-                        <i class="bi bi-question-circle"></i>
-                        <span>Help</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="ai-view" data-title="AI Assistant" onclick="showAiAssistant()">
-                        <i class="bi bi-robot"></i>
-                        <span>AI Assistant</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="settings-view" data-title="Settings" onclick="showSettings()">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="profile-view" data-title="Profile" onclick="showProfile()">
-                        <i class="bi bi-person-circle"></i>
-                        <span>Profile</span>
-                    </a>
-                    <a class="side-nav-link" href="#" data-view="license-view" data-title="License" onclick="showLicenseInfo()">
-                        <i class="bi bi-shield-check"></i>
-                        <span>License</span>
-                    </a>
-                </nav>
-
-                <div class="sidebar-footer">
-                    <button class="btn btn-primary w-100 mb-2 d-none" id="install-app-btn" type="button">
-                        <i class="bi bi-download me-2"></i>Install App
-                    </button>
-                    <button class="btn btn-outline-secondary w-100" type="button" onclick="logout()">
-                        <i class="bi bi-box-arrow-right me-2"></i>Logout
-                    </button>
-                </div>
-            </aside>
-
-            <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
-
-            <!-- Main Content Area -->
             <main class="app-main">
-                <div class="mobile-bar">
-                    <button class="icon-button" type="button" onclick="toggleSidebar()">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div class="mobile-title" id="view-title">Dashboard</div>
+                <header class="app-topbar">
+                    <div>
+                        <div class="brand-kicker">Personal Finance</div>
+                        <div class="brand-title-line">PesaTrucker</div>
+                    </div>
+                    <div class="topbar-actions">
+                        <button class="topbar-pill d-none" id="install-app-btn" type="button">
+                            <i class="bi bi-download"></i>
+                            <span>Install</span>
+                        </button>
+                        <button class="topbar-profile" type="button" onclick="showProfile()">
+                            <div class="user-avatar" id="topbar-avatar">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <div class="topbar-user-meta">
+                                <div class="topbar-user-name" id="nav-username">User</div>
+                                <div class="topbar-user-subtitle">Account</div>
+                            </div>
+                        </button>
+                    </div>
+                </header>
+
+                <section class="view-meta-card">
+                    <div>
+                        <div class="view-meta-kicker" id="view-kicker">Home</div>
+                        <h1 class="view-meta-title" id="view-title">Dashboard</h1>
+                        <p class="view-meta-text" id="view-subtitle">Track your cash flow, bills, budgets, and insights in one place.</p>
+                    </div>
                     <button class="icon-button d-none" type="button" id="install-app-btn-mobile" aria-label="Install App">
                         <i class="bi bi-download"></i>
                     </button>
-                </div>
+                </section>
 
                 <div class="content-shell">
                     <!-- Dashboard View -->
@@ -156,8 +98,8 @@
                         </div>
 
                         <!-- Summary Cards -->
-                        <div class="row g-4 mb-4 stat-grid">
-                            <div class="col-md-4 col-sm-6">
+                        <div class="row g-3 mb-4 stat-grid">
+                            <div class="col-6">
                                 <div class="card summary-card income-card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -172,7 +114,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-6">
+                            <div class="col-6">
                                 <div class="card summary-card expense-card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -187,7 +129,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 col-sm-6">
+                            <div class="col-6">
                                 <div class="card summary-card balance-card stat-card">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -197,6 +139,21 @@
                                             </div>
                                             <div class="icon-box bg-primary">
                                                 <i class="bi bi-wallet2"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card summary-card remaining-card stat-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="text-muted mb-1">Savings This Month</p>
+                                                <h3 class="mb-0" id="monthly-remaining">$0.00</h3>
+                                            </div>
+                                            <div class="icon-box bg-info">
+                                                <i class="bi bi-piggy-bank"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -290,11 +247,17 @@
 
                     <!-- Transactions View -->
                     <div id="transactions-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">All</button>
+                            <button class="section-tab active" type="button" data-view="transactions-view" onclick="showTransactions()">Transactions</button>
+                            <button class="section-tab" type="button" data-view="bills-view" onclick="showBills()">Bills</button>
+                            <button class="section-tab" type="button" data-view="events-view" onclick="showEvents()">Events</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Track every move</div>
+                                <div class="hero-greeting">Activity feed</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-currency-exchange me-2"></i>Transactions</h2>
-                                <div class="hero-subtitle">Monitor cash flow, categories, and notes.</div>
+                                <div class="hero-subtitle">Search, filter, and review every income and expense.</div>
                             </div>
                             <div class="hero-actions">
                                 <button class="btn btn-success" onclick="showAddTransactionModal('income')">
@@ -354,9 +317,13 @@
 
                     <!-- Budgets View -->
                     <div id="budgets-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="reports-view" onclick="showReports()">Reports</button>
+                            <button class="section-tab active" type="button" data-view="budgets-view" onclick="showBudgets()">Budgets</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Plan your month</div>
+                                <div class="hero-greeting">Insights</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-pie-chart me-2"></i>Budgets</h2>
                                 <div class="hero-subtitle">Set limits and track category spending.</div>
                             </div>
@@ -374,9 +341,15 @@
 
                     <!-- Bills View -->
                     <div id="bills-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">All</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">Transactions</button>
+                            <button class="section-tab active" type="button" data-view="bills-view" onclick="showBills()">Bills</button>
+                            <button class="section-tab" type="button" data-view="events-view" onclick="showEvents()">Events</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Stay ahead</div>
+                                <div class="hero-greeting">Activity feed</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-receipt me-2"></i>Bills & Payments</h2>
                                 <div class="hero-subtitle">Keep due dates and statuses organized.</div>
                             </div>
@@ -398,9 +371,15 @@
 
                     <!-- Events View -->
                     <div id="events-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">All</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">Transactions</button>
+                            <button class="section-tab" type="button" data-view="bills-view" onclick="showBills()">Bills</button>
+                            <button class="section-tab active" type="button" data-view="events-view" onclick="showEvents()">Events</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Plan your day</div>
+                                <div class="hero-greeting">Activity feed</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-calendar2-event me-2"></i>Events</h2>
                                 <div class="hero-subtitle">Schedule activities and reminders.</div>
                             </div>
@@ -422,9 +401,13 @@
 
                     <!-- Reports View -->
                     <div id="reports-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab active" type="button" data-view="reports-view" onclick="showReports()">Reports</button>
+                            <button class="section-tab" type="button" data-view="budgets-view" onclick="showBudgets()">Budgets</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Visual insights</div>
+                                <div class="hero-greeting">Insights</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h2>
                                 <div class="hero-subtitle">Explore trends and category distribution.</div>
                             </div>
@@ -466,11 +449,25 @@
 
                     <!-- Profile View -->
                     <div id="profile-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab active" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
+                            <button class="section-tab" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
+                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab" type="button" data-view="help-view" onclick="showHelp()">Help</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Your details</div>
+                                <div class="hero-greeting">Profile hub</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-person-circle me-2"></i>Profile</h2>
-                                <div class="hero-subtitle">Update your personal and account info.</div>
+                                <div class="hero-subtitle">Account details, preferences, and support in one place.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-outline-secondary" type="button" onclick="showSettings()">
+                                    <i class="bi bi-sliders me-1"></i>Settings
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="showLicenseInfo()">
+                                    <i class="bi bi-shield-check me-1"></i>License
+                                </button>
                             </div>
                         </div>
                         <div class="row">
@@ -488,6 +485,12 @@
 
                     <!-- Settings View -->
                     <div id="settings-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
+                            <button class="section-tab active" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
+                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab" type="button" data-view="help-view" onclick="showHelp()">Help</button>
+                        </div>
                         <div class="page-hero mb-4">
                             <div>
                                 <div class="hero-greeting">Make it yours</div>
@@ -505,12 +508,12 @@
                                         <div class="mb-3">
                                             <label class="form-label">Currency</label>
                                             <select class="form-select" id="setting-currency" onchange="saveSetting('currency', this.value)">
+                                                <option value="TZS">TZS - Tanzanian Shilling</option>
+                                                <option value="KES">KES - Kenyan Shilling</option>
                                                 <option value="USD">USD - US Dollar</option>
                                                 <option value="EUR">EUR - Euro</option>
                                                 <option value="GBP">GBP - British Pound</option>
                                                 <option value="JPY">JPY - Japanese Yen</option>
-                                                <option value="TZS">TZS - Tanzanian Shilling</option>
-                                                <option value="KES">KES - Kenyan Shilling</option>
                                             </select>
                                         </div>
                                         <div class="mb-3">
@@ -552,6 +555,12 @@
 
                     <!-- Help View -->
                     <div id="help-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
+                            <button class="section-tab" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
+                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab active" type="button" data-view="help-view" onclick="showHelp()">Help</button>
+                        </div>
                         <div class="help-hero mb-4">
                             <div class="help-hero-content">
                                 <div class="help-hero-badge">
@@ -706,6 +715,12 @@
 
                     <!-- License Info View -->
                     <div id="license-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
+                            <button class="section-tab" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
+                            <button class="section-tab active" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab" type="button" data-view="help-view" onclick="showHelp()">Help</button>
+                        </div>
                         <h2 class="mb-4"><i class="bi bi-shield-check me-2"></i>License Information</h2>
                         <div class="row">
                             <div class="col-md-6">
@@ -718,6 +733,66 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <button class="add-fab" type="button" onclick="toggleQuickAddSheet()" aria-label="Open add menu">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+
+                <nav class="bottom-nav" aria-label="Primary navigation">
+                    <button class="app-nav-link active" type="button" data-group="home" data-view="dashboard-view" onclick="showDashboard()">
+                        <i class="bi bi-house-door"></i>
+                        <span>Home</span>
+                    </button>
+                    <button class="app-nav-link" type="button" data-group="activity" data-view="transactions-view" onclick="showActivity()">
+                        <i class="bi bi-arrow-left-right"></i>
+                        <span>Activity</span>
+                    </button>
+                    <div class="bottom-nav-gap" aria-hidden="true"></div>
+                    <button class="app-nav-link" type="button" data-group="insights" data-view="reports-view" onclick="showInsights()">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Insights</span>
+                    </button>
+                    <button class="app-nav-link" type="button" data-group="profile" data-view="profile-view" onclick="showProfileHome()">
+                        <i class="bi bi-person"></i>
+                        <span>Profile</span>
+                    </button>
+                </nav>
+
+                <div class="quick-add-backdrop" id="quick-add-backdrop" onclick="closeQuickAddSheet()"></div>
+                <div class="quick-add-sheet" id="quick-add-sheet" aria-hidden="true">
+                    <div class="sheet-handle"></div>
+                    <div class="sheet-header">
+                        <div>
+                            <div class="sheet-kicker">Quick Add</div>
+                            <div class="sheet-title">Create something fast</div>
+                        </div>
+                        <button class="icon-button" type="button" onclick="closeQuickAddSheet()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="sheet-actions">
+                        <button class="sheet-action" type="button" onclick="openQuickAddAnd('income')">
+                            <span class="sheet-action-icon income"><i class="bi bi-arrow-down-circle"></i></span>
+                            <span>Add Income</span>
+                        </button>
+                        <button class="sheet-action" type="button" onclick="openQuickAddAnd('expense')">
+                            <span class="sheet-action-icon expense"><i class="bi bi-arrow-up-circle"></i></span>
+                            <span>Add Expense</span>
+                        </button>
+                        <button class="sheet-action" type="button" onclick="openQuickAddAnd('budget')">
+                            <span class="sheet-action-icon budget"><i class="bi bi-pie-chart"></i></span>
+                            <span>Add Budget</span>
+                        </button>
+                        <button class="sheet-action" type="button" onclick="openQuickAddAnd('bill')">
+                            <span class="sheet-action-icon bill"><i class="bi bi-receipt"></i></span>
+                            <span>Add Bill</span>
+                        </button>
+                        <button class="sheet-action" type="button" onclick="openQuickAddAnd('event')">
+                            <span class="sheet-action-icon event"><i class="bi bi-calendar2-event"></i></span>
+                            <span>Add Event</span>
+                        </button>
                     </div>
                 </div>
             </main>

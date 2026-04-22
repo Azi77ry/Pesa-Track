@@ -151,7 +151,7 @@ async function loadTransactionsView() {
     const transactions = await DB.getUserTransactions(userId);
     const categories = await DB.getUserCategories(userId);
     const settings = await DB.getUserSettings(userId);
-    const currency = App.getCurrencySymbol(settings?.currency || 'USD');
+    const currency = App.getCurrencySymbol(settings?.currency || 'TZS');
     
     // Apply filters
     const filtered = filterTransactionsList(transactions);

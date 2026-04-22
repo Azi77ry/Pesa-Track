@@ -2,6 +2,63 @@
 const App = {
     initialized: false,
     currentView: 'dashboard',
+    viewMeta: {
+        'dashboard-view': {
+            title: 'Dashboard',
+            kicker: 'Home',
+            subtitle: 'Track your balance, cash flow, bills, and budget health.'
+        },
+        'transactions-view': {
+            title: 'Activity',
+            kicker: 'Transactions',
+            subtitle: 'Review income and expenses with quick filters and search.'
+        },
+        'bills-view': {
+            title: 'Activity',
+            kicker: 'Bills',
+            subtitle: 'Manage recurring bills, due dates, and payment status.'
+        },
+        'events-view': {
+            title: 'Activity',
+            kicker: 'Events',
+            subtitle: 'Keep reminders and financial events close at hand.'
+        },
+        'reports-view': {
+            title: 'Insights',
+            kicker: 'Reports',
+            subtitle: 'Explore trends, charts, and spending analytics.'
+        },
+        'budgets-view': {
+            title: 'Insights',
+            kicker: 'Budgets',
+            subtitle: 'Monitor category limits, alerts, and monthly progress.'
+        },
+        'profile-view': {
+            title: 'Profile',
+            kicker: 'Account',
+            subtitle: 'Manage your details, account info, and shortcuts.'
+        },
+        'settings-view': {
+            title: 'Profile',
+            kicker: 'Settings',
+            subtitle: 'Adjust currency, theme, notifications, and categories.'
+        },
+        'license-view': {
+            title: 'Profile',
+            kicker: 'License',
+            subtitle: 'View activation status and manage access.'
+        },
+        'help-view': {
+            title: 'Profile',
+            kicker: 'Help',
+            subtitle: 'Find support, guidance, and product information.'
+        },
+        'ai-view': {
+            title: 'AI Assistant',
+            kicker: 'Support',
+            subtitle: 'Ask questions and get answers from the app documentation.'
+        }
+    },
 
     // Initialize App
     async init() {
@@ -25,7 +82,7 @@ const App = {
             await this.applySettings();
 
             // Load dashboard
-            this.loadDashboard();
+            showDashboard();
 
             // Setup notifications
             this.setupNotifications();
@@ -55,20 +112,20 @@ const App = {
         const userId = parseInt(Auth.getCurrentUserId());
         const settings = await DB.getUserSettings(userId);
 
-        if (settings) {
-            // Apply theme
-            document.documentElement.setAttribute('data-theme', settings.theme || 'light');
-            
-            // Set form values
-            const themeSelect = document.getElementById('setting-theme');
-            if (themeSelect) themeSelect.value = settings.theme || 'light';
+        const theme = settings?.theme || 'light';
+        const currency = settings?.currency || 'TZS';
+        const notificationsEnabled = settings?.notifications !== false;
 
-            const currencySelect = document.getElementById('setting-currency');
-            if (currencySelect) currencySelect.value = settings.currency || 'USD';
+        document.documentElement.setAttribute('data-theme', theme);
 
-            const notificationsCheck = document.getElementById('setting-notifications');
-            if (notificationsCheck) notificationsCheck.checked = settings.notifications !== false;
-        }
+        const themeSelect = document.getElementById('setting-theme');
+        if (themeSelect) themeSelect.value = theme;
+
+        const currencySelect = document.getElementById('setting-currency');
+        if (currencySelect) currencySelect.value = currency;
+
+        const notificationsCheck = document.getElementById('setting-notifications');
+        if (notificationsCheck) notificationsCheck.checked = notificationsEnabled;
     },
 
     // Load categories for dropdowns
@@ -116,7 +173,7 @@ const App = {
         const userId = parseInt(Auth.getCurrentUserId());
         const transactions = await DB.getUserTransactions(userId);
         const settings = await DB.getUserSettings(userId);
-        const currency = this.getCurrencySymbol(settings?.currency || 'USD');
+        const currency = this.getCurrencySymbol(settings?.currency || 'TZS');
 
         // Get current month transactions
         const now = new Date();
@@ -290,7 +347,7 @@ const App = {
         const transactions = await DB.getUserTransactions(userId);
         const categories = await DB.getUserCategories(userId);
         const settings = await DB.getUserSettings(userId);
-        const currency = this.getCurrencySymbol(settings?.currency || 'USD');
+        const currency = this.getCurrencySymbol(settings?.currency || 'TZS');
 
         // Sort by date descending
         const recentTransactions = transactions
@@ -344,7 +401,7 @@ const App = {
         const userId = parseInt(Auth.getCurrentUserId());
         const bills = await DB.getUserBills(userId);
         const settings = await DB.getUserSettings(userId);
-        const currency = this.getCurrencySymbol(settings?.currency || 'USD');
+        const currency = this.getCurrencySymbol(settings?.currency || 'TZS');
 
         const now = new Date();
         const next30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -511,13 +568,32 @@ const App = {
 
 // Update sidebar avatar
 App.updateUserAvatar = function (imageData) {
-    const avatar = document.getElementById('sidebar-avatar');
-    if (!avatar) return;
-    if (imageData) {
-        avatar.innerHTML = `<img src="${imageData}" alt="Profile">`;
-    } else {
-        avatar.innerHTML = `<i class="bi bi-person"></i>`;
-    }
+    ['topbar-avatar', 'sidebar-avatar'].forEach(id => {
+        const avatar = document.getElementById(id);
+        if (!avatar) return;
+        avatar.innerHTML = imageData
+            ? `<img src="${imageData}" alt="Profile">`
+            : `<i class="bi bi-person"></i>`;
+    });
+};
+
+App.updateViewMeta = function (viewId) {
+    const meta = this.viewMeta[viewId] || {};
+    const titleEl = document.getElementById('view-title');
+    const kickerEl = document.getElementById('view-kicker');
+    const subtitleEl = document.getElementById('view-subtitle');
+
+    if (titleEl) titleEl.textContent = meta.title || 'PesaTrucker';
+    if (kickerEl) kickerEl.textContent = meta.kicker || 'Overview';
+    if (subtitleEl) subtitleEl.textContent = meta.subtitle || 'Manage your finances with confidence.';
+};
+
+App.getNavGroup = function (viewId) {
+    if (viewId === 'dashboard-view') return 'home';
+    if (['transactions-view', 'bills-view', 'events-view'].includes(viewId)) return 'activity';
+    if (['reports-view', 'budgets-view'].includes(viewId)) return 'insights';
+    if (['profile-view', 'settings-view', 'license-view', 'help-view'].includes(viewId)) return 'profile';
+    return '';
 };
 
 // View Management
@@ -530,7 +606,10 @@ function showView(viewId) {
     // Show selected view
     document.getElementById(viewId).classList.remove('d-none');
 
-    // Update sidebar active state and title
+    App.currentView = viewId;
+    App.updateViewMeta(viewId);
+
+    // Update old sidebar hooks if present
     document.querySelectorAll('.side-nav-link').forEach(item => {
         item.classList.remove('active');
     });
@@ -538,12 +617,74 @@ function showView(viewId) {
     const activeLink = document.querySelector(`.side-nav-link[data-view="${viewId}"]`);
     if (activeLink) {
         activeLink.classList.add('active');
-        const title = activeLink.getAttribute('data-title') || 'PesaTrucker';
-        const titleEl = document.getElementById('view-title');
-        if (titleEl) titleEl.textContent = title;
     }
 
+    document.querySelectorAll('.section-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.view === viewId);
+    });
+
+    const navGroup = App.getNavGroup(viewId);
+    document.querySelectorAll('.app-nav-link').forEach(item => {
+        item.classList.toggle('active', item.dataset.group === navGroup);
+    });
+
+    closeQuickAddSheet();
     closeSidebar();
+}
+
+function showActivity() {
+    showTransactions();
+}
+
+function showInsights() {
+    showReports();
+}
+
+function showProfileHome() {
+    showProfile();
+}
+
+function toggleQuickAddSheet() {
+    const sheet = document.getElementById('quick-add-sheet');
+    const backdrop = document.getElementById('quick-add-backdrop');
+    if (!sheet || !backdrop) return;
+
+    const isOpen = sheet.classList.toggle('open');
+    backdrop.classList.toggle('show', isOpen);
+    sheet.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+}
+
+function closeQuickAddSheet() {
+    const sheet = document.getElementById('quick-add-sheet');
+    const backdrop = document.getElementById('quick-add-backdrop');
+    if (!sheet || !backdrop) return;
+
+    sheet.classList.remove('open');
+    backdrop.classList.remove('show');
+    sheet.setAttribute('aria-hidden', 'true');
+}
+
+function openQuickAddAnd(type) {
+    closeQuickAddSheet();
+
+    if (type === 'income' || type === 'expense') {
+        showAddTransactionModal(type);
+        return;
+    }
+
+    if (type === 'budget') {
+        showAddBudgetModal();
+        return;
+    }
+
+    if (type === 'bill') {
+        showAddBillModal();
+        return;
+    }
+
+    if (type === 'event') {
+        showAddEventModal();
+    }
 }
 
 function toggleSidebar() {
@@ -738,5 +879,10 @@ function initApp() {
 
 // Auto-initialize on load
 document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeQuickAddSheet();
+        }
+    });
     App.init();
 });

@@ -73,7 +73,7 @@ async function loadBudgetsView() {
     const transactions = await DB.getUserTransactions(userId);
     const categories = await DB.getUserCategories(userId);
     const settings = await DB.getUserSettings(userId);
-    const currency = App.getCurrencySymbol(settings?.currency || 'USD');
+    const currency = App.getCurrencySymbol(settings?.currency || 'TZS');
     
     const container = document.getElementById('budgets-list');
     

@@ -76,7 +76,7 @@ async function loadBillsView() {
     const bills = await DB.getUserBills(userId);
     const categories = await DB.getUserCategories(userId);
     const settings = await DB.getUserSettings(userId);
-    const currency = App.getCurrencySymbol(settings?.currency || 'USD');
+    const currency = App.getCurrencySymbol(settings?.currency || 'TZS');
     
     const container = document.getElementById('bills-list');
     
