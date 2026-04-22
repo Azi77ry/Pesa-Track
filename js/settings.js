@@ -7,11 +7,10 @@ async function loadSettingsView() {
     const categories = await DB.getUserCategories(userId);
     
     // Set form values
-    if (settings) {
-        document.getElementById('setting-currency').value = settings.currency || 'TZS';
-        document.getElementById('setting-theme').value = settings.theme || 'light';
-        document.getElementById('setting-notifications').checked = settings.notifications !== false;
-    }
+    document.getElementById('setting-currency').value = settings?.currency || 'TZS';
+    document.getElementById('setting-theme').value = settings?.theme || 'light';
+    document.getElementById('setting-language').value = settings?.language || 'en';
+    document.getElementById('setting-notifications').checked = settings?.notifications !== false;
     
     // Load categories list
     loadCategoriesList(categories);
@@ -37,6 +36,9 @@ async function saveSetting(key, value) {
     } else if (key === 'currency') {
         showToast('Currency updated', 'success');
         reloadActiveViewForCurrency();
+    } else if (key === 'language') {
+        App.applyLanguage(value);
+        showToast(value === 'sw' ? 'Lugha imebadilishwa' : 'Language updated', 'success');
     } else if (key === 'notifications') {
         showToast(value ? 'Notifications enabled' : 'Notifications disabled', 'success');
     }

@@ -1,62 +1,121 @@
 // Main Application Module
 const App = {
     initialized: false,
-    currentView: 'dashboard',
-    viewMeta: {
-        'dashboard-view': {
-            title: 'Dashboard',
-            kicker: 'Home',
-            subtitle: 'Track your balance, cash flow, bills, and budget health.'
+    currentView: 'dashboard-view',
+    translations: {
+        en: {
+            personalFinance: 'Personal Finance',
+            install: 'Install',
+            account: 'Account',
+            activityFeed: 'Activity feed',
+            insightsKicker: 'Insights',
+            overview: 'Overview',
+            comparison: 'Comparison',
+            topCategories: 'Top Categories',
+            sixMonths: '6 months',
+            profileHub: 'Profile hub',
+            makeItYours: 'Make it yours',
+            light: 'Light',
+            dark: 'Dark',
+            welcomeBack: 'Welcome back',
+            totalBalance: 'Total Balance',
+            totalIncomeLabel: 'Total Income',
+            totalExpenseLabel: 'Total Expenses',
+            currentBalanceLabel: 'Current Balance',
+            monthlySavingsLabel: 'Savings This Month',
+            addIncome: 'Add Income',
+            addExpense: 'Add Expense',
+            createBudget: 'Create Budget',
+            addBill: 'Add Bill',
+            recordEarnings: 'Record earnings',
+            trackSpending: 'Track spending',
+            setALimit: 'Set a limit',
+            neverMissDue: 'Never miss due',
+            recentTransactions: 'Recent Transactions',
+            upcomingBills: 'Upcoming Bills',
+            budgetAlerts: 'Budget Alerts',
+            weeklyExpenses: 'Weekly Expenses',
+            home: 'Home',
+            activity: 'Activity',
+            insights: 'Insights',
+            profile: 'Profile',
+            quickAdd: 'Quick Add',
+            createSomethingFast: 'Create something fast',
+            addBudgetSheet: 'Add Budget',
+            addEvent: 'Add Event',
+            language: 'Language',
+            english: 'English',
+            swahili: 'Swahili',
+            currency: 'Currency',
+            theme: 'Theme',
+            notifications: 'Enable Notifications',
+            dashboard: 'Dashboard',
+            transactions: 'Transactions',
+            bills: 'Bills',
+            events: 'Events',
+            reports: 'Reports',
+            budgets: 'Budgets',
+            settings: 'Settings',
+            help: 'Help',
+            license: 'License',
+            all: 'All'
         },
-        'transactions-view': {
-            title: 'Activity',
-            kicker: 'Transactions',
-            subtitle: 'Review income and expenses with quick filters and search.'
-        },
-        'bills-view': {
-            title: 'Activity',
-            kicker: 'Bills',
-            subtitle: 'Manage recurring bills, due dates, and payment status.'
-        },
-        'events-view': {
-            title: 'Activity',
-            kicker: 'Events',
-            subtitle: 'Keep reminders and financial events close at hand.'
-        },
-        'reports-view': {
-            title: 'Insights',
-            kicker: 'Reports',
-            subtitle: 'Explore trends, charts, and spending analytics.'
-        },
-        'budgets-view': {
-            title: 'Insights',
-            kicker: 'Budgets',
-            subtitle: 'Monitor category limits, alerts, and monthly progress.'
-        },
-        'profile-view': {
-            title: 'Profile',
-            kicker: 'Account',
-            subtitle: 'Manage your details, account info, and shortcuts.'
-        },
-        'settings-view': {
-            title: 'Profile',
-            kicker: 'Settings',
-            subtitle: 'Adjust currency, theme, notifications, and categories.'
-        },
-        'license-view': {
-            title: 'Profile',
-            kicker: 'License',
-            subtitle: 'View activation status and manage access.'
-        },
-        'help-view': {
-            title: 'Profile',
-            kicker: 'Help',
-            subtitle: 'Find support, guidance, and product information.'
-        },
-        'ai-view': {
-            title: 'AI Assistant',
-            kicker: 'Support',
-            subtitle: 'Ask questions and get answers from the app documentation.'
+        sw: {
+            personalFinance: 'Fedha Binafsi',
+            install: 'Sakinisha',
+            account: 'Akaunti',
+            activityFeed: 'Mtiririko wa shughuli',
+            insightsKicker: 'Tathmini',
+            overview: 'Muhtasari',
+            comparison: 'Linganisho',
+            topCategories: 'Makundi Makuu',
+            sixMonths: 'Miezi 6',
+            profileHub: 'Kitovu cha wasifu',
+            makeItYours: 'Boreshwa upendavyo',
+            light: 'Mwanga',
+            dark: 'Giza',
+            welcomeBack: 'Karibu tena',
+            totalBalance: 'Salio Kuu',
+            totalIncomeLabel: 'Mapato Yote',
+            totalExpenseLabel: 'Matumizi Yote',
+            currentBalanceLabel: 'Salio la Sasa',
+            monthlySavingsLabel: 'Akiba ya Mwezi',
+            addIncome: 'Ongeza Mapato',
+            addExpense: 'Ongeza Matumizi',
+            createBudget: 'Tengeneza Bajeti',
+            addBill: 'Ongeza Bili',
+            recordEarnings: 'Hifadhi mapato',
+            trackSpending: 'Fuatilia matumizi',
+            setALimit: 'Weka kikomo',
+            neverMissDue: 'Usikose tarehe',
+            recentTransactions: 'Miamala ya Karibuni',
+            upcomingBills: 'Bili Zijazo',
+            budgetAlerts: 'Tahadhari za Bajeti',
+            weeklyExpenses: 'Matumizi ya Wiki',
+            home: 'Nyumbani',
+            activity: 'Shughuli',
+            insights: 'Tathmini',
+            profile: 'Wasifu',
+            quickAdd: 'Ongeza Haraka',
+            createSomethingFast: 'Unda kwa haraka',
+            addBudgetSheet: 'Ongeza Bajeti',
+            addEvent: 'Ongeza Tukio',
+            language: 'Lugha',
+            english: 'Kiingereza',
+            swahili: 'Kiswahili',
+            currency: 'Sarafu',
+            theme: 'Mandhari',
+            notifications: 'Washa Arifa',
+            dashboard: 'Dashibodi',
+            transactions: 'Miamala',
+            bills: 'Bili',
+            events: 'Matukio',
+            reports: 'Ripoti',
+            budgets: 'Bajeti',
+            settings: 'Mipangilio',
+            help: 'Msaada',
+            license: 'Leseni',
+            all: 'Zote'
         }
     },
 
@@ -98,6 +157,7 @@ const App = {
     async loadUserData() {
         const userId = parseInt(Auth.getCurrentUserId());
         const user = Auth.getCurrentUser();
+        await DB.ensureLocalizedDefaults(userId);
 
         // Update navbar username
         document.getElementById('nav-username').textContent = user.name || 'User';
@@ -124,8 +184,12 @@ const App = {
         const currencySelect = document.getElementById('setting-currency');
         if (currencySelect) currencySelect.value = currency;
 
+        const languageSelect = document.getElementById('setting-language');
+        if (languageSelect) languageSelect.value = settings?.language || 'en';
+
         const notificationsCheck = document.getElementById('setting-notifications');
         if (notificationsCheck) notificationsCheck.checked = notificationsEnabled;
+        this.applyLanguage(settings?.language || 'en');
     },
 
     // Load categories for dropdowns
@@ -578,7 +642,7 @@ App.updateUserAvatar = function (imageData) {
 };
 
 App.updateViewMeta = function (viewId) {
-    const meta = this.viewMeta[viewId] || {};
+    const meta = this.getViewMeta()[viewId] || {};
     const titleEl = document.getElementById('view-title');
     const kickerEl = document.getElementById('view-kicker');
     const subtitleEl = document.getElementById('view-subtitle');
@@ -586,6 +650,66 @@ App.updateViewMeta = function (viewId) {
     if (titleEl) titleEl.textContent = meta.title || 'PesaTrucker';
     if (kickerEl) kickerEl.textContent = meta.kicker || 'Overview';
     if (subtitleEl) subtitleEl.textContent = meta.subtitle || 'Manage your finances with confidence.';
+};
+
+App.getCurrentLanguage = function () {
+    const settingLanguage = document.getElementById('setting-language')?.value;
+    return settingLanguage || localStorage.getItem('appLanguage') || 'en';
+};
+
+App.getViewMeta = function () {
+    const language = this.getCurrentLanguage();
+    const localized = {
+        en: {
+            'dashboard-view': { title: 'Dashboard', kicker: 'Home', subtitle: 'Track your balance, cash flow, bills, and budget health.' },
+            'transactions-view': { title: 'Activity', kicker: 'Transactions', subtitle: 'Review income and expenses with quick filters and search.' },
+            'bills-view': { title: 'Activity', kicker: 'Bills', subtitle: 'Manage recurring bills, due dates, and payment status.' },
+            'events-view': { title: 'Activity', kicker: 'Events', subtitle: 'Keep reminders and financial events close at hand.' },
+            'reports-view': { title: 'Insights', kicker: 'Reports', subtitle: 'Explore trends, charts, and spending analytics.' },
+            'budgets-view': { title: 'Insights', kicker: 'Budgets', subtitle: 'Monitor category limits, alerts, and monthly progress.' },
+            'profile-view': { title: 'Profile', kicker: 'Account', subtitle: 'Manage your details, account info, and shortcuts.' },
+            'settings-view': { title: 'Profile', kicker: 'Settings', subtitle: 'Adjust currency, theme, notifications, and categories.' },
+            'license-view': { title: 'Profile', kicker: 'License', subtitle: 'View activation status and manage access.' },
+            'help-view': { title: 'Profile', kicker: 'Help', subtitle: 'Find support, guidance, and product information.' },
+            'ai-view': { title: 'AI Assistant', kicker: 'Support', subtitle: 'Ask questions and get answers from the app documentation.' }
+        },
+        sw: {
+            'dashboard-view': { title: 'Dashibodi', kicker: 'Nyumbani', subtitle: 'Fuatilia salio, mtiririko wa fedha, bili na afya ya bajeti.' },
+            'transactions-view': { title: 'Shughuli', kicker: 'Miamala', subtitle: 'Pitia mapato na matumizi kwa vichujio na utafutaji wa haraka.' },
+            'bills-view': { title: 'Shughuli', kicker: 'Bili', subtitle: 'Simamia bili za kujirudia, tarehe za mwisho na malipo.' },
+            'events-view': { title: 'Shughuli', kicker: 'Matukio', subtitle: 'Weka vikumbusho na matukio ya kifedha karibu nawe.' },
+            'reports-view': { title: 'Tathmini', kicker: 'Ripoti', subtitle: 'Chunguza mwenendo, chati na uchambuzi wa matumizi.' },
+            'budgets-view': { title: 'Tathmini', kicker: 'Bajeti', subtitle: 'Fuatilia vikomo vya makundi, tahadhari na maendeleo ya mwezi.' },
+            'profile-view': { title: 'Wasifu', kicker: 'Akaunti', subtitle: 'Simamia taarifa zako, akaunti na njia za mkato.' },
+            'settings-view': { title: 'Wasifu', kicker: 'Mipangilio', subtitle: 'Badili sarafu, mandhari, arifa na makundi.' },
+            'license-view': { title: 'Wasifu', kicker: 'Leseni', subtitle: 'Angalia hali ya uanzishaji na udhibiti wa ufikiaji.' },
+            'help-view': { title: 'Wasifu', kicker: 'Msaada', subtitle: 'Pata msaada, mwongozo na taarifa za bidhaa.' },
+            'ai-view': { title: 'Msaidizi wa AI', kicker: 'Msaada', subtitle: 'Uliza maswali na upate majibu kutoka nyaraka za app.' }
+        }
+    };
+    return localized[language] || localized.en;
+};
+
+App.applyLanguage = function (language = 'en') {
+    const dict = this.translations[language] || this.translations.en;
+    document.documentElement.lang = language;
+    localStorage.setItem('appLanguage', language);
+
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.dataset.i18n;
+        if (dict[key]) {
+            element.textContent = dict[key];
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.dataset.i18nPlaceholder;
+        if (dict[key]) {
+            element.placeholder = dict[key];
+        }
+    });
+
+    this.updateViewMeta(this.currentView || 'dashboard-view');
 };
 
 App.getNavGroup = function (viewId) {

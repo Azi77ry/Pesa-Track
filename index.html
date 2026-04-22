@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Offline-first personal finance management application">
-    <meta name="theme-color" content="#6f66ff">
+    <meta name="theme-color" content="#2563EB">
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
@@ -48,13 +48,13 @@
             <main class="app-main">
                 <header class="app-topbar">
                     <div>
-                        <div class="brand-kicker">Personal Finance</div>
+                        <div class="brand-kicker" data-i18n="personalFinance">Personal Finance</div>
                         <div class="brand-title-line">PesaTrucker</div>
                     </div>
                     <div class="topbar-actions">
                         <button class="topbar-pill d-none" id="install-app-btn" type="button">
                             <i class="bi bi-download"></i>
-                            <span>Install</span>
+                            <span data-i18n="install">Install</span>
                         </button>
                         <button class="topbar-profile" type="button" onclick="showProfile()">
                             <div class="user-avatar" id="topbar-avatar">
@@ -62,7 +62,7 @@
                             </div>
                             <div class="topbar-user-meta">
                                 <div class="topbar-user-name" id="nav-username">User</div>
-                                <div class="topbar-user-subtitle">Account</div>
+                                <div class="topbar-user-subtitle" data-i18n="account">Account</div>
                             </div>
                         </button>
                     </div>
@@ -85,10 +85,10 @@
                         <div class="dashboard-app-title">Pesa Trucker</div>
                         <div class="page-hero dashboard-hero mb-4">
                             <div class="hero-content">
-                                <div class="hero-greeting">Welcome back, <span id="hero-username">User</span></div>
+                                <div class="hero-greeting"><span id="hero-greeting-text" data-i18n="welcomeBack">Welcome back</span>, <span id="hero-username">User</span></div>
                                 <div class="hero-title">Dashboard</div>
                                 <div class="hero-balance">
-                                    <div class="hero-label">Total Balance</div>
+                                    <div class="hero-label" data-i18n="totalBalance">Total Balance</div>
                                     <div class="hero-value" id="hero-current-balance">$0.00</div>
                                 </div>
                             </div>
@@ -104,7 +104,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <p class="text-muted mb-1">Total Income</p>
+                                                <p class="text-muted mb-1" data-i18n="totalIncomeLabel">Total Income</p>
                                                 <h3 class="mb-0" id="total-income">$0.00</h3>
                                             </div>
                                             <div class="icon-box bg-success">
@@ -119,7 +119,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <p class="text-muted mb-1">Total Expenses</p>
+                                                <p class="text-muted mb-1" data-i18n="totalExpenseLabel">Total Expenses</p>
                                                 <h3 class="mb-0" id="total-expenses">$0.00</h3>
                                             </div>
                                             <div class="icon-box bg-danger">
@@ -134,7 +134,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <p class="text-muted mb-1">Current Balance</p>
+                                                <p class="text-muted mb-1" data-i18n="currentBalanceLabel">Current Balance</p>
                                                 <h3 class="mb-0" id="current-balance">$0.00</h3>
                                             </div>
                                             <div class="icon-box bg-primary">
@@ -149,7 +149,7 @@
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <p class="text-muted mb-1">Savings This Month</p>
+                                                <p class="text-muted mb-1" data-i18n="monthlySavingsLabel">Savings This Month</p>
                                                 <h3 class="mb-0" id="monthly-remaining">$0.00</h3>
                                             </div>
                                             <div class="icon-box bg-info">
@@ -166,29 +166,29 @@
                                 <div class="tile-icon tile-icon-income">
                                     <i class="bi bi-arrow-down-circle"></i>
                                 </div>
-                                <div class="tile-title">Add Income</div>
-                                <div class="tile-subtitle">Record earnings</div>
+                                <div class="tile-title" data-i18n="addIncome">Add Income</div>
+                                <div class="tile-subtitle" data-i18n="recordEarnings">Record earnings</div>
                             </button>
                             <button class="quick-action-tile" type="button" onclick="showAddTransactionModal('expense')">
                                 <div class="tile-icon tile-icon-expense">
                                     <i class="bi bi-arrow-up-circle"></i>
                                 </div>
-                                <div class="tile-title">Add Expense</div>
-                                <div class="tile-subtitle">Track spending</div>
+                                <div class="tile-title" data-i18n="addExpense">Add Expense</div>
+                                <div class="tile-subtitle" data-i18n="trackSpending">Track spending</div>
                             </button>
                             <button class="quick-action-tile" type="button" onclick="showAddBudgetModal()">
                                 <div class="tile-icon tile-icon-budget">
                                     <i class="bi bi-pie-chart"></i>
                                 </div>
-                                <div class="tile-title">Create Budget</div>
-                                <div class="tile-subtitle">Set a limit</div>
+                                <div class="tile-title" data-i18n="createBudget">Create Budget</div>
+                                <div class="tile-subtitle" data-i18n="setALimit">Set a limit</div>
                             </button>
                             <button class="quick-action-tile" type="button" onclick="showAddBillModal()">
                                 <div class="tile-icon tile-icon-bill">
                                     <i class="bi bi-receipt"></i>
                                 </div>
-                                <div class="tile-title">Add Bill</div>
-                                <div class="tile-subtitle">Never miss due</div>
+                                <div class="tile-title" data-i18n="addBill">Add Bill</div>
+                                <div class="tile-subtitle" data-i18n="neverMissDue">Never miss due</div>
                             </button>
                         </div>
 
@@ -197,7 +197,7 @@
                             <div class="col-lg-8">
                                 <div class="card panel-card">
                                     <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Recent Transactions</h5>
+                                        <h5 class="mb-0" data-i18n="recentTransactions">Recent Transactions</h5>
                                     </div>
                                     <div class="card-body">
                                         <div id="recent-transactions-list">
@@ -211,7 +211,7 @@
                             <div class="col-lg-4">
                                 <div class="card panel-card mb-4">
                                     <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Upcoming Bills</h5>
+                                        <h5 class="mb-0" data-i18n="upcomingBills">Upcoming Bills</h5>
                                     </div>
                                     <div class="card-body">
                                         <div id="upcoming-bills-list">
@@ -222,7 +222,7 @@
 
                                 <div class="card panel-card">
                                     <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Budget Alerts</h5>
+                                        <h5 class="mb-0" data-i18n="budgetAlerts">Budget Alerts</h5>
                                     </div>
                                     <div class="card-body">
                                         <div id="budget-alerts-list">
@@ -233,7 +233,7 @@
 
                                 <div class="card panel-card mt-4">
                                     <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Weekly Expenses</h5>
+                                        <h5 class="mb-0" data-i18n="weeklyExpenses">Weekly Expenses</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="chart-wrap">
@@ -248,23 +248,23 @@
                     <!-- Transactions View -->
                     <div id="transactions-view" class="content-view d-none">
                         <div class="section-tabs mb-3">
-                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">All</button>
-                            <button class="section-tab active" type="button" data-view="transactions-view" onclick="showTransactions()">Transactions</button>
-                            <button class="section-tab" type="button" data-view="bills-view" onclick="showBills()">Bills</button>
-                            <button class="section-tab" type="button" data-view="events-view" onclick="showEvents()">Events</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()" data-i18n="all">All</button>
+                            <button class="section-tab active" type="button" data-view="transactions-view" onclick="showTransactions()" data-i18n="transactions">Transactions</button>
+                            <button class="section-tab" type="button" data-view="bills-view" onclick="showBills()" data-i18n="bills">Bills</button>
+                            <button class="section-tab" type="button" data-view="events-view" onclick="showEvents()" data-i18n="events">Events</button>
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Activity feed</div>
+                                <div class="hero-greeting" data-i18n="activityFeed">Activity feed</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-currency-exchange me-2"></i>Transactions</h2>
                                 <div class="hero-subtitle">Search, filter, and review every income and expense.</div>
                             </div>
                             <div class="hero-actions">
                                 <button class="btn btn-success" onclick="showAddTransactionModal('income')">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Income
+                                    <i class="bi bi-plus-circle me-1"></i><span data-i18n="addIncome">Add Income</span>
                                 </button>
                                 <button class="btn btn-danger ms-2" onclick="showAddTransactionModal('expense')">
-                                    <i class="bi bi-dash-circle me-1"></i>Add Expense
+                                    <i class="bi bi-dash-circle me-1"></i><span data-i18n="addExpense">Add Expense</span>
                                 </button>
                             </div>
                         </div>
@@ -318,18 +318,18 @@
                     <!-- Budgets View -->
                     <div id="budgets-view" class="content-view d-none">
                         <div class="section-tabs mb-3">
-                            <button class="section-tab" type="button" data-view="reports-view" onclick="showReports()">Reports</button>
-                            <button class="section-tab active" type="button" data-view="budgets-view" onclick="showBudgets()">Budgets</button>
+                            <button class="section-tab" type="button" data-view="reports-view" onclick="showReports()" data-i18n="reports">Reports</button>
+                            <button class="section-tab active" type="button" data-view="budgets-view" onclick="showBudgets()" data-i18n="budgets">Budgets</button>
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Insights</div>
+                                <div class="hero-greeting" data-i18n="insightsKicker">Insights</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-pie-chart me-2"></i>Budgets</h2>
                                 <div class="hero-subtitle">Set limits and track category spending.</div>
                             </div>
                             <div class="hero-actions">
                                 <button class="btn btn-primary" onclick="showAddBudgetModal()">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Budget
+                                    <i class="bi bi-plus-circle me-1"></i><span data-i18n="addBudgetSheet">Add Budget</span>
                                 </button>
                             </div>
                         </div>
@@ -342,20 +342,20 @@
                     <!-- Bills View -->
                     <div id="bills-view" class="content-view d-none">
                         <div class="section-tabs mb-3">
-                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">All</button>
-                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">Transactions</button>
-                            <button class="section-tab active" type="button" data-view="bills-view" onclick="showBills()">Bills</button>
-                            <button class="section-tab" type="button" data-view="events-view" onclick="showEvents()">Events</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()" data-i18n="all">All</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()" data-i18n="transactions">Transactions</button>
+                            <button class="section-tab active" type="button" data-view="bills-view" onclick="showBills()" data-i18n="bills">Bills</button>
+                            <button class="section-tab" type="button" data-view="events-view" onclick="showEvents()" data-i18n="events">Events</button>
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Activity feed</div>
+                                <div class="hero-greeting" data-i18n="activityFeed">Activity feed</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-receipt me-2"></i>Bills & Payments</h2>
                                 <div class="hero-subtitle">Keep due dates and statuses organized.</div>
                             </div>
                             <div class="hero-actions">
                                 <button class="btn btn-primary" onclick="showAddBillModal()">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Bill
+                                    <i class="bi bi-plus-circle me-1"></i><span data-i18n="addBill">Add Bill</span>
                                 </button>
                             </div>
                         </div>
@@ -372,20 +372,20 @@
                     <!-- Events View -->
                     <div id="events-view" class="content-view d-none">
                         <div class="section-tabs mb-3">
-                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">All</button>
-                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()">Transactions</button>
-                            <button class="section-tab" type="button" data-view="bills-view" onclick="showBills()">Bills</button>
-                            <button class="section-tab active" type="button" data-view="events-view" onclick="showEvents()">Events</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()" data-i18n="all">All</button>
+                            <button class="section-tab" type="button" data-view="transactions-view" onclick="showTransactions()" data-i18n="transactions">Transactions</button>
+                            <button class="section-tab" type="button" data-view="bills-view" onclick="showBills()" data-i18n="bills">Bills</button>
+                            <button class="section-tab active" type="button" data-view="events-view" onclick="showEvents()" data-i18n="events">Events</button>
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Activity feed</div>
+                                <div class="hero-greeting" data-i18n="activityFeed">Activity feed</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-calendar2-event me-2"></i>Events</h2>
                                 <div class="hero-subtitle">Schedule activities and reminders.</div>
                             </div>
                             <div class="hero-actions">
                                 <button class="btn btn-primary" onclick="showAddEventModal()">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Event
+                                    <i class="bi bi-plus-circle me-1"></i><span data-i18n="addEvent">Add Event</span>
                                 </button>
                             </div>
                         </div>
@@ -402,12 +402,12 @@
                     <!-- Reports View -->
                     <div id="reports-view" class="content-view d-none">
                         <div class="section-tabs mb-3">
-                            <button class="section-tab active" type="button" data-view="reports-view" onclick="showReports()">Reports</button>
-                            <button class="section-tab" type="button" data-view="budgets-view" onclick="showBudgets()">Budgets</button>
+                            <button class="section-tab active" type="button" data-view="reports-view" onclick="showReports()" data-i18n="reports">Reports</button>
+                            <button class="section-tab" type="button" data-view="budgets-view" onclick="showBudgets()" data-i18n="budgets">Budgets</button>
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Insights</div>
+                                <div class="hero-greeting" data-i18n="insightsKicker">Insights</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h2>
                                 <div class="hero-subtitle">Explore trends and category distribution.</div>
                             </div>
@@ -415,32 +415,50 @@
 
                         <div class="row g-4">
                             <div class="col-lg-6">
-                                <div class="card panel-card">
-                                    <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Expenses by Category</h5>
+                                <div class="card panel-card reports-card reports-card-breakdown">
+                                    <div class="card-header bg-white panel-header reports-panel-header">
+                                        <div>
+                                        <div class="reports-panel-kicker" data-i18n="overview">Overview</div>
+                                        <h5 class="mb-0">Expense Breakdown</h5>
                                     </div>
-                                    <div class="card-body">
-                                        <canvas id="categoryChart"></canvas>
+                                        <div class="reports-chip" data-i18n="topCategories">Top Categories</div>
+                                    </div>
+                                    <div class="card-body reports-card-body">
+                                        <div class="chart-wrap chart-wrap-donut">
+                                            <canvas id="categoryChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-6">
-                                <div class="card panel-card">
-                                    <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Monthly Spending Trend</h5>
+                                <div class="card panel-card reports-card reports-card-cashflow">
+                                    <div class="card-header bg-white panel-header reports-panel-header">
+                                        <div>
+                                            <div class="reports-panel-kicker" data-i18n="overview">Overview</div>
+                                            <h5 class="mb-0">Cash Flow (Income vs Expenses)</h5>
+                                        </div>
+                                        <div class="reports-chip" data-i18n="sixMonths">6 months</div>
                                     </div>
-                                    <div class="card-body">
-                                        <canvas id="trendChart"></canvas>
+                                    <div class="card-body reports-card-body">
+                                        <div class="chart-wrap chart-wrap-cashflow">
+                                            <canvas id="trendChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-12">
-                                <div class="card panel-card">
-                                    <div class="card-header bg-white panel-header">
-                                        <h5 class="mb-0">Income vs Expenses</h5>
+                                <div class="card panel-card reports-card">
+                                    <div class="card-header bg-white panel-header reports-panel-header">
+                                        <div>
+                                            <div class="reports-panel-kicker" data-i18n="comparison">Comparison</div>
+                                            <h5 class="mb-0">Income vs Expenses</h5>
+                                        </div>
+                                        <div class="reports-chip" data-i18n="sixMonths">6 months</div>
                                     </div>
-                                    <div class="card-body">
-                                        <canvas id="comparisonChart"></canvas>
+                                    <div class="card-body reports-card-body">
+                                        <div class="chart-wrap chart-wrap-bars">
+                                            <canvas id="comparisonChart"></canvas>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -457,7 +475,7 @@
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Profile hub</div>
+                                <div class="hero-greeting" data-i18n="profileHub">Profile hub</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-person-circle me-2"></i>Profile</h2>
                                 <div class="hero-subtitle">Account details, preferences, and support in one place.</div>
                             </div>
@@ -493,7 +511,7 @@
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting">Make it yours</div>
+                                <div class="hero-greeting" data-i18n="makeItYours">Make it yours</div>
                                 <h2 class="page-title mb-1"><i class="bi bi-gear me-2"></i>Settings</h2>
                                 <div class="hero-subtitle">Tune preferences, themes, and categories.</div>
                             </div>
@@ -506,7 +524,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label class="form-label">Currency</label>
+                                            <label class="form-label" data-i18n="currency">Currency</label>
                                             <select class="form-select" id="setting-currency" onchange="saveSetting('currency', this.value)">
                                                 <option value="TZS">TZS - Tanzanian Shilling</option>
                                                 <option value="KES">KES - Kenyan Shilling</option>
@@ -517,16 +535,23 @@
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Theme</label>
+                                            <label class="form-label" data-i18n="theme">Theme</label>
                                             <select class="form-select" id="setting-theme" onchange="saveSetting('theme', this.value)">
-                                                <option value="light">Light</option>
-                                                <option value="dark">Dark</option>
+                                                <option value="light" data-i18n="light">Light</option>
+                                                <option value="dark" data-i18n="dark">Dark</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label" data-i18n="language">Language</label>
+                                            <select class="form-select" id="setting-language" onchange="saveSetting('language', this.value)">
+                                                <option value="en" data-i18n="english">English</option>
+                                                <option value="sw" data-i18n="swahili">Swahili</option>
                                             </select>
                                         </div>
                                         <div class="mb-3">
                                             <div class="form-check form-switch">
                                                 <input class="form-check-input" type="checkbox" id="setting-notifications" onchange="saveSetting('notifications', this.checked)">
-                                                <label class="form-check-label" for="setting-notifications">
+                                                <label class="form-check-label" for="setting-notifications" data-i18n="notifications">
                                                     Enable Notifications
                                                 </label>
                                             </div>
@@ -743,20 +768,20 @@
                 <nav class="bottom-nav" aria-label="Primary navigation">
                     <button class="app-nav-link active" type="button" data-group="home" data-view="dashboard-view" onclick="showDashboard()">
                         <i class="bi bi-house-door"></i>
-                        <span>Home</span>
+                        <span data-i18n="home">Home</span>
                     </button>
                     <button class="app-nav-link" type="button" data-group="activity" data-view="transactions-view" onclick="showActivity()">
                         <i class="bi bi-arrow-left-right"></i>
-                        <span>Activity</span>
+                        <span data-i18n="activity">Activity</span>
                     </button>
                     <div class="bottom-nav-gap" aria-hidden="true"></div>
                     <button class="app-nav-link" type="button" data-group="insights" data-view="reports-view" onclick="showInsights()">
                         <i class="bi bi-bar-chart"></i>
-                        <span>Insights</span>
+                        <span data-i18n="insights">Insights</span>
                     </button>
                     <button class="app-nav-link" type="button" data-group="profile" data-view="profile-view" onclick="showProfileHome()">
                         <i class="bi bi-person"></i>
-                        <span>Profile</span>
+                        <span data-i18n="profile">Profile</span>
                     </button>
                 </nav>
 
@@ -765,8 +790,8 @@
                     <div class="sheet-handle"></div>
                     <div class="sheet-header">
                         <div>
-                            <div class="sheet-kicker">Quick Add</div>
-                            <div class="sheet-title">Create something fast</div>
+                            <div class="sheet-kicker" data-i18n="quickAdd">Quick Add</div>
+                            <div class="sheet-title" data-i18n="createSomethingFast">Create something fast</div>
                         </div>
                         <button class="icon-button" type="button" onclick="closeQuickAddSheet()">
                             <i class="bi bi-x-lg"></i>
@@ -775,23 +800,23 @@
                     <div class="sheet-actions">
                         <button class="sheet-action" type="button" onclick="openQuickAddAnd('income')">
                             <span class="sheet-action-icon income"><i class="bi bi-arrow-down-circle"></i></span>
-                            <span>Add Income</span>
+                            <span data-i18n="addIncome">Add Income</span>
                         </button>
                         <button class="sheet-action" type="button" onclick="openQuickAddAnd('expense')">
                             <span class="sheet-action-icon expense"><i class="bi bi-arrow-up-circle"></i></span>
-                            <span>Add Expense</span>
+                            <span data-i18n="addExpense">Add Expense</span>
                         </button>
                         <button class="sheet-action" type="button" onclick="openQuickAddAnd('budget')">
                             <span class="sheet-action-icon budget"><i class="bi bi-pie-chart"></i></span>
-                            <span>Add Budget</span>
+                            <span data-i18n="addBudgetSheet">Add Budget</span>
                         </button>
                         <button class="sheet-action" type="button" onclick="openQuickAddAnd('bill')">
                             <span class="sheet-action-icon bill"><i class="bi bi-receipt"></i></span>
-                            <span>Add Bill</span>
+                            <span data-i18n="addBill">Add Bill</span>
                         </button>
                         <button class="sheet-action" type="button" onclick="openQuickAddAnd('event')">
                             <span class="sheet-action-icon event"><i class="bi bi-calendar2-event"></i></span>
-                            <span>Add Event</span>
+                            <span data-i18n="addEvent">Add Event</span>
                         </button>
                     </div>
                 </div>

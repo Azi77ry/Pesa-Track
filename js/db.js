@@ -172,16 +172,19 @@ const DB = {
     async initDefaultCategories(userId) {
         const defaultCategories = [
             { userId, name: 'Salary', type: 'income', icon: 'briefcase' },
+            { userId, name: 'Business', type: 'income', icon: 'shop' },
+            { userId, name: 'M-Pesa', type: 'income', icon: 'phone' },
             { userId, name: 'Freelance', type: 'income', icon: 'laptop' },
-            { userId, name: 'Investment', type: 'income', icon: 'graph-up' },
-            { userId, name: 'Groceries', type: 'expense', icon: 'cart' },
-            { userId, name: 'Transport', type: 'expense', icon: 'car' },
-            { userId, name: 'Utilities', type: 'expense', icon: 'lightning' },
-            { userId, name: 'Entertainment', type: 'expense', icon: 'film' },
+            { userId, name: 'Food', type: 'expense', icon: 'cup-hot' },
+            { userId, name: 'Boda', type: 'expense', icon: 'bicycle' },
+            { userId, name: 'Rent', type: 'expense', icon: 'house-door' },
+            { userId, name: 'M-Pesa Charges', type: 'expense', icon: 'phone' },
+            { userId, name: 'Utilities', type: 'expense', icon: 'lightning-charge' },
             { userId, name: 'Healthcare', type: 'expense', icon: 'heart' },
             { userId, name: 'Education', type: 'expense', icon: 'book' },
             { userId, name: 'Shopping', type: 'expense', icon: 'bag' },
-            { userId, name: 'Rent', type: 'expense', icon: 'house' },
+            { userId, name: 'Family Support', type: 'expense', icon: 'people' },
+            { userId, name: 'Airtime & Data', type: 'expense', icon: 'wifi' },
             { userId, name: 'Other', type: 'expense', icon: 'three-dots' }
         ];
 
@@ -194,12 +197,45 @@ const DB = {
     async initDefaultSettings(userId) {
         const defaultSettings = {
             userId,
-            currency: 'USD',
+            currency: 'TZS',
             theme: 'light',
             notifications: true,
             language: 'en'
         };
         await this.add('settings', defaultSettings);
+    },
+
+    async ensureLocalizedDefaults(userId) {
+        const existingCategories = await this.getUserCategories(userId);
+        const existingSettings = await this.getUserSettings(userId);
+        const categoryKeys = new Set(existingCategories.map(category => `${category.type}:${category.name.toLowerCase()}`));
+        const suggestedCategories = [
+            { userId, name: 'M-Pesa', type: 'income', icon: 'phone' },
+            { userId, name: 'Business', type: 'income', icon: 'shop' },
+            { userId, name: 'Food', type: 'expense', icon: 'cup-hot' },
+            { userId, name: 'Boda', type: 'expense', icon: 'bicycle' },
+            { userId, name: 'Rent', type: 'expense', icon: 'house-door' },
+            { userId, name: 'M-Pesa Charges', type: 'expense', icon: 'phone' }
+        ];
+
+        for (const category of suggestedCategories) {
+            const key = `${category.type}:${category.name.toLowerCase()}`;
+            if (!categoryKeys.has(key)) {
+                await this.add('categories', category);
+            }
+        }
+
+        if (!existingSettings) {
+            await this.initDefaultSettings(userId);
+            return;
+        }
+
+        const nextSettings = {
+            ...existingSettings,
+            currency: existingSettings.currency || 'TZS',
+            language: existingSettings.language || 'en'
+        };
+        await this.update('settings', nextSettings);
     },
 
     // Clear user data (for logout)

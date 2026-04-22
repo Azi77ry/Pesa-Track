@@ -2,6 +2,38 @@
 
 let categoryChart, trendChart, comparisonChart;
 
+function createLineGradient(ctx, color) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+    if (color === 'blue') {
+        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.28)');
+        gradient.addColorStop(1, 'rgba(37, 99, 235, 0.02)');
+    } else {
+        gradient.addColorStop(0, 'rgba(22, 163, 74, 0.24)');
+        gradient.addColorStop(1, 'rgba(22, 163, 74, 0.02)');
+    }
+    return gradient;
+}
+
+function getChartTextColor() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    return theme === 'dark' ? '#cbd5e1' : '#64748b';
+}
+
+function getChartGridColor() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    return theme === 'dark' ? 'rgba(148, 163, 184, 0.14)' : 'rgba(148, 163, 184, 0.18)';
+}
+
+function getChartSurfaceColor() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    return theme === 'dark' ? '#0f172a' : '#ffffff';
+}
+
+function getLegendLabelColor(index) {
+    const palette = ['#1d4ed8', '#22c55e', '#0ea5e9', '#f59e0b', '#8b5cf6', '#ef4444', '#14b8a6', '#a3a3a3', '#f97316', '#6366f1'];
+    return palette[index % palette.length];
+}
+
 // Load Reports View
 async function loadReportsView() {
     const userId = parseInt(Auth.getCurrentUserId());
@@ -41,6 +73,10 @@ async function loadCategoryChart(transactions, categories, currency) {
     data.sort((a, b) => b.value - a.value);
     
     const ctx = document.getElementById('categoryChart');
+    if (!ctx) return;
+    const totalExpenses = data.reduce((sum, item) => sum + item.value, 0);
+    const textColor = getChartTextColor();
+    const surfaceColor = getChartSurfaceColor();
     
     // Destroy existing chart
     if (categoryChart) {
@@ -54,24 +90,48 @@ async function loadCategoryChart(transactions, categories, currency) {
             datasets: [{
                 data: data.map(d => d.value),
                 backgroundColor: [
-                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-                    '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+                    '#1d4ed8', '#22c55e', '#0ea5e9', '#f59e0b', '#8b5cf6',
+                    '#ef4444', '#14b8a6', '#a3a3a3', '#f97316', '#6366f1'
                 ],
-                borderWidth: 2,
-                borderColor: '#fff'
+                borderWidth: 3,
+                borderColor: surfaceColor,
+                hoverOffset: 6,
+                spacing: 2
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
+            cutout: '58%',
             plugins: {
                 legend: {
-                    position: 'bottom',
+                    position: 'right',
+                    align: 'center',
                     labels: {
-                        padding: 15,
+                        color: textColor,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        padding: 18,
                         font: {
-                            size: 12
-                        }
+                            size: 12,
+                            weight: '600'
+                        },
+                        generateLabels(chart) {
+                            const baseLabels = Chart.overrides.doughnut.plugins.legend.labels.generateLabels(chart);
+                            return baseLabels.map((label, index) => {
+                                const value = data[index]?.value || 0;
+                                const percentage = totalExpenses ? Math.round((value / totalExpenses) * 100) : 0;
+                                return {
+                                    ...label,
+                                    text: `${label.text} ${percentage}%`,
+                                    strokeStyle: getLegendLabelColor(index),
+                                    fillStyle: getLegendLabelColor(index),
+                                    lineWidth: 0
+                                };
+                            });
+                        },
                     }
                 },
                 tooltip: {
@@ -97,10 +157,17 @@ async function loadTrendChart(transactions, currency) {
     const incomeData = [];
     const expenseData = [];
     
-    // Get last 12 months
-    for (let i = 11; i >= 0; i--) {
+    const ctx = document.getElementById('trendChart');
+    if (!ctx) return;
+    const chartTextColor = getChartTextColor();
+    const gridColor = getChartGridColor();
+    const incomeGradient = createLineGradient(ctx.getContext('2d'), 'green');
+    const expenseGradient = createLineGradient(ctx.getContext('2d'), 'blue');
+
+    // Get last 6 months
+    for (let i = 5; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        const monthName = date.toLocaleDateString('en-US', { month: 'short' });
         months.push(monthName);
         
         // Filter transactions for this month
@@ -122,8 +189,6 @@ async function loadTrendChart(transactions, currency) {
         expenseData.push(expense);
     }
     
-    const ctx = document.getElementById('trendChart');
-    
     // Destroy existing chart
     if (trendChart) {
         trendChart.destroy();
@@ -137,18 +202,24 @@ async function loadTrendChart(transactions, currency) {
                 {
                     label: 'Income',
                     data: incomeData,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4,
-                    fill: true
+                    borderColor: '#16a34a',
+                    backgroundColor: incomeGradient,
+                    tension: 0.42,
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    borderWidth: 3
                 },
                 {
                     label: 'Expenses',
                     data: expenseData,
-                    borderColor: '#ef4444',
-                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                    tension: 0.4,
-                    fill: true
+                    borderColor: '#2563eb',
+                    backgroundColor: expenseGradient,
+                    tension: 0.42,
+                    fill: true,
+                    pointRadius: 0,
+                    pointHoverRadius: 5,
+                    borderWidth: 3
                 }
             ]
         },
@@ -161,9 +232,28 @@ async function loadTrendChart(transactions, currency) {
             },
             plugins: {
                 legend: {
-                    position: 'top'
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: chartTextColor,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        padding: 16,
+                        font: {
+                            size: 12,
+                            weight: '600'
+                        }
+                    }
                 },
                 tooltip: {
+                    backgroundColor: getChartSurfaceColor(),
+                    titleColor: chartTextColor,
+                    bodyColor: chartTextColor,
+                    borderColor: gridColor,
+                    borderWidth: 1,
+                    displayColors: true,
                     callbacks: {
                         label: function(context) {
                             return `${context.dataset.label}: ${currency}${context.parsed.y.toFixed(2)}`;
@@ -172,9 +262,28 @@ async function loadTrendChart(transactions, currency) {
                 }
             },
             scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    border: {
+                        display: false
+                    },
+                    ticks: {
+                        color: chartTextColor
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: gridColor,
+                        drawBorder: false
+                    },
+                    border: {
+                        display: false
+                    },
                     ticks: {
+                        color: chartTextColor,
                         callback: function(value) {
                             return currency + value.toFixed(0);
                         }
@@ -218,6 +327,9 @@ async function loadComparisonChart(transactions, currency) {
     }
     
     const ctx = document.getElementById('comparisonChart');
+    if (!ctx) return;
+    const chartTextColor = getChartTextColor();
+    const gridColor = getChartGridColor();
     
     // Destroy existing chart
     if (comparisonChart) {
@@ -232,13 +344,13 @@ async function loadComparisonChart(transactions, currency) {
                 {
                     label: 'Income',
                     data: incomeData,
-                    backgroundColor: '#10b981',
+                    backgroundColor: '#16a34a',
                     borderRadius: 8
                 },
                 {
                     label: 'Expenses',
                     data: expenseData,
-                    backgroundColor: '#ef4444',
+                    backgroundColor: '#2563eb',
                     borderRadius: 8
                 }
             ]
@@ -248,9 +360,23 @@ async function loadComparisonChart(transactions, currency) {
             maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    position: 'top'
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: chartTextColor,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        padding: 16
+                    }
                 },
                 tooltip: {
+                    backgroundColor: getChartSurfaceColor(),
+                    titleColor: chartTextColor,
+                    bodyColor: chartTextColor,
+                    borderColor: gridColor,
+                    borderWidth: 1,
                     callbacks: {
                         label: function(context) {
                             return `${context.dataset.label}: ${currency}${context.parsed.y.toFixed(2)}`;
@@ -259,9 +385,28 @@ async function loadComparisonChart(transactions, currency) {
                 }
             },
             scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    border: {
+                        display: false
+                    },
+                    ticks: {
+                        color: chartTextColor
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: gridColor,
+                        drawBorder: false
+                    },
+                    border: {
+                        display: false
+                    },
                     ticks: {
+                        color: chartTextColor,
                         callback: function(value) {
                             return currency + value.toFixed(0);
                         }
