@@ -26,14 +26,19 @@ function getChartTheme() {
 
 function createGradient(ctx, colorStart, colorEnd, height = 280) {
     if (!ctx) return colorStart;
-    const grad = ctx.createLinearGradient(0, 0, 0, height);
-    grad.addColorStop(0, colorStart);
-    grad.addColorStop(1, colorEnd);
-    return grad;
+    try {
+        const grad = ctx.createLinearGradient(0, 0, 0, height);
+        grad.addColorStop(0, colorStart);
+        grad.addColorStop(1, colorEnd);
+        return grad;
+    } catch (e) {
+        return colorStart;
+    }
 }
 
 // ─── Date Range Filters ────────────────────────────────────────────────────────
 function getReportDateRange(transactions) {
+    if (!Array.isArray(transactions)) return [];
     const periodEl = document.getElementById('report-period');
     const fromEl = document.getElementById('report-date-from');
     const toEl = document.getElementById('report-date-to');
@@ -73,38 +78,42 @@ function getReportDateRange(transactions) {
 
 // ─── Main Reports Loader ──────────────────────────────────────────────────────
 async function loadReportsView() {
-    const userId = parseInt(Auth.getCurrentUserId());
-    if (!userId || isNaN(userId)) return;
+    try {
+        const userId = parseInt(Auth.getCurrentUserId());
+        if (!userId || isNaN(userId)) return;
 
-    const allTransactions = await DB.getUserTransactions(userId);
-    const categories = await DB.getUserCategories(userId);
-    const budgets = await DB.getUserBudgets(userId);
-    const investments = DB.getUserInvestments ? await DB.getUserInvestments(userId) : [];
-    const settings = await DB.getUserSettings(userId);
-    const currency = App.getCurrencySymbol(settings?.currency || 'TZS');
+        const allTransactions = (await DB.getUserTransactions(userId)) || [];
+        const categories = (await DB.getUserCategories(userId)) || [];
+        const budgets = (await DB.getUserBudgets(userId)) || [];
+        const investments = DB.getUserInvestments ? ((await DB.getUserInvestments(userId)) || []) : [];
+        const settings = (await DB.getUserSettings(userId)) || {};
+        const currency = typeof App !== 'undefined' ? App.getCurrencySymbol(settings?.currency || 'TZS') : 'TZS';
 
-    const filteredTransactions = getReportDateRange(allTransactions);
+        const filteredTransactions = getReportDateRange(allTransactions);
 
-    // Update summary metrics cards
-    renderReportMetrics(filteredTransactions, currency);
+        // Update summary metrics cards
+        renderReportMetrics(filteredTransactions, currency);
 
-    // Render all 6 advanced charts
-    await renderCategoryChart(filteredTransactions, categories, currency);
-    await renderTrendChart(allTransactions, currency);
-    await renderComparisonChart(allTransactions, currency);
-    await renderNetWorthChart(allTransactions, investments, currency);
-    await renderBudgetRadarChart(filteredTransactions, budgets, categories, currency);
-    await renderAssetAllocationChart(investments, currency);
+        // Render charts safely with try/catch
+        try { await renderCategoryChart(filteredTransactions, categories, currency); } catch(e) { console.warn(e); }
+        try { await renderTrendChart(allTransactions, currency); } catch(e) { console.warn(e); }
+        try { await renderComparisonChart(allTransactions, currency); } catch(e) { console.warn(e); }
+        try { await renderNetWorthChart(allTransactions, investments, currency); } catch(e) { console.warn(e); }
+        try { await renderBudgetRadarChart(filteredTransactions, budgets, categories, currency); } catch(e) { console.warn(e); }
+        try { await renderAssetAllocationChart(investments, currency); } catch(e) { console.warn(e); }
 
-    // Render text analytics & insights
-    loadSpendingInsights(filteredTransactions, categories, currency);
-    loadTaxEstimation(filteredTransactions, currency);
+        // Render text analytics & insights
+        loadSpendingInsights(filteredTransactions, categories, currency);
+        loadTaxEstimation(filteredTransactions, currency);
 
-    // Show/hide custom date picker row
-    const periodEl = document.getElementById('report-period');
-    const customRow = document.getElementById('report-date-range-row');
-    if (customRow && periodEl) {
-        customRow.classList.toggle('d-none', periodEl.value !== 'custom');
+        // Show/hide custom date picker row
+        const periodEl = document.getElementById('report-period');
+        const customRow = document.getElementById('report-date-range-row');
+        if (customRow && periodEl) {
+            customRow.classList.toggle('d-none', periodEl.value !== 'custom');
+        }
+    } catch (err) {
+        console.error('Error loading reports view:', err);
     }
 }
 
@@ -131,7 +140,7 @@ function renderReportMetrics(transactions, currency) {
     if (!container) return;
 
     let income = 0, expense = 0;
-    transactions.forEach(t => {
+    (transactions || []).forEach(t => {
         const amt = parseFloat(t.amount || 0);
         if (t.type === 'income') income += amt;
         else if (t.type === 'expense') expense += amt;
@@ -173,11 +182,11 @@ function renderReportMetrics(transactions, currency) {
 // ─── 1. Category Expense Donut Chart (With Center Total) ───────────────────────
 async function renderCategoryChart(transactions, categories, currency) {
     const canvas = document.getElementById('categoryChart');
-    if (!canvas) return;
+    if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
     const theme = getChartTheme();
 
-    const expenses = transactions.filter(t => t.type === 'expense');
+    const expenses = (transactions || []).filter(t => t.type === 'expense');
     const grouped = {};
     let totalExpense = 0;
 
@@ -189,11 +198,13 @@ async function renderCategoryChart(transactions, categories, currency) {
     });
 
     const sorted = Object.keys(grouped).map(catId => {
-        const cat = categories.find(c => c.id === parseInt(catId));
+        const cat = (categories || []).find(c => c.id === parseInt(catId));
         return { label: cat ? cat.name : 'Other', value: grouped[catId] };
     }).sort((a, b) => b.value - a.value);
 
-    if (categoryChart) categoryChart.destroy();
+    if (categoryChart) {
+        try { categoryChart.destroy(); } catch(e){}
+    }
 
     if (sorted.length === 0) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -250,7 +261,7 @@ async function renderCategoryChart(transactions, categories, currency) {
             animation: {
                 animateScale: true,
                 animateRotate: true,
-                duration: 900
+                duration: 700
             }
         }
     });
@@ -259,11 +270,10 @@ async function renderCategoryChart(transactions, categories, currency) {
 // ─── 2. Cash Flow Wave / Area Trend Chart ──────────────────────────────────────
 async function renderTrendChart(transactions, currency) {
     const canvas = document.getElementById('trendChart');
-    if (!canvas) return;
+    if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
     const theme = getChartTheme();
 
-    // Group last 6 months
     const monthlyData = {};
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -273,7 +283,7 @@ async function renderTrendChart(transactions, currency) {
         monthlyData[monthKey] = { income: 0, expense: 0, isoPrefix };
     }
 
-    transactions.forEach(t => {
+    (transactions || []).forEach(t => {
         Object.keys(monthlyData).forEach(key => {
             if (t.date && t.date.startsWith(monthlyData[key].isoPrefix)) {
                 if (t.type === 'income') monthlyData[key].income += parseFloat(t.amount || 0);
@@ -286,7 +296,9 @@ async function renderTrendChart(transactions, currency) {
     const incomeData = labels.map(k => monthlyData[k].income);
     const expenseData = labels.map(k => monthlyData[k].expense);
 
-    if (trendChart) trendChart.destroy();
+    if (trendChart) {
+        try { trendChart.destroy(); } catch(e){}
+    }
 
     const incomeGrad = createGradient(ctx, 'rgba(16, 185, 129, 0.28)', 'rgba(16, 185, 129, 0.01)', 240);
     const expenseGrad = createGradient(ctx, 'rgba(239, 68, 68, 0.28)', 'rgba(239, 68, 68, 0.01)', 240);
@@ -361,7 +373,7 @@ async function renderTrendChart(transactions, currency) {
 // ─── 3. Monthly Comparison Bar Chart ──────────────────────────────────────────
 async function renderComparisonChart(transactions, currency) {
     const canvas = document.getElementById('comparisonChart');
-    if (!canvas) return;
+    if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
     const theme = getChartTheme();
 
@@ -374,7 +386,7 @@ async function renderComparisonChart(transactions, currency) {
         monthlyData[monthKey] = { income: 0, expense: 0, net: 0, isoPrefix };
     }
 
-    transactions.forEach(t => {
+    (transactions || []).forEach(t => {
         Object.keys(monthlyData).forEach(key => {
             if (t.date && t.date.startsWith(monthlyData[key].isoPrefix)) {
                 if (t.type === 'income') monthlyData[key].income += parseFloat(t.amount || 0);
@@ -387,7 +399,9 @@ async function renderComparisonChart(transactions, currency) {
     const incomeData = labels.map(k => monthlyData[k].income);
     const expenseData = labels.map(k => monthlyData[k].expense);
 
-    if (comparisonChart) comparisonChart.destroy();
+    if (comparisonChart) {
+        try { comparisonChart.destroy(); } catch(e){}
+    }
 
     comparisonChart = new Chart(ctx, {
         type: 'bar',
@@ -447,13 +461,12 @@ async function renderComparisonChart(transactions, currency) {
 // ─── 4. Net Worth & Cumulative Wealth Growth Chart ────────────────────────────
 async function renderNetWorthChart(transactions, investments, currency) {
     const canvas = document.getElementById('netWorthChart');
-    if (!canvas) return;
+    if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
     const theme = getChartTheme();
 
     const invTotal = (investments || []).reduce((sum, inv) => sum + parseFloat(inv.currentValue || inv.amount || 0), 0);
 
-    // Calculate rolling balance over the last 6 months
     const now = new Date();
     const monthlyNet = [];
     const labels = [];
@@ -466,7 +479,7 @@ async function renderNetWorthChart(transactions, investments, currency) {
         labels.push(monthKey);
 
         let inc = 0, exp = 0;
-        transactions.forEach(t => {
+        (transactions || []).forEach(t => {
             if (t.date && t.date.startsWith(isoPrefix)) {
                 if (t.type === 'income') inc += parseFloat(t.amount || 0);
                 else if (t.type === 'expense') exp += parseFloat(t.amount || 0);
@@ -476,7 +489,9 @@ async function renderNetWorthChart(transactions, investments, currency) {
         monthlyNet.push(Math.max(0, runningBalance));
     }
 
-    if (netWorthChart) netWorthChart.destroy();
+    if (netWorthChart) {
+        try { netWorthChart.destroy(); } catch(e){}
+    }
 
     const grad = createGradient(ctx, 'rgba(59, 130, 246, 0.32)', 'rgba(59, 130, 246, 0.02)', 240);
 
@@ -527,12 +542,16 @@ async function renderNetWorthChart(transactions, investments, currency) {
 // ─── 5. Budget vs Actual Spending Radar Chart ─────────────────────────────────
 async function renderBudgetRadarChart(transactions, budgets, categories, currency) {
     const canvas = document.getElementById('budgetRadarChart');
-    if (!canvas) return;
+    if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
     const theme = getChartTheme();
 
+    if (budgetRadarChart) {
+        try { budgetRadarChart.destroy(); } catch(e){}
+    }
+
     if (!budgets || !budgets.length) {
-        if (budgetRadarChart) budgetRadarChart.destroy();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         return;
     }
 
@@ -541,17 +560,15 @@ async function renderBudgetRadarChart(transactions, budgets, categories, currenc
     const spentVals = [];
 
     budgets.slice(0, 6).forEach(b => {
-        const cat = categories.find(c => c.id === parseInt(b.categoryId));
+        const cat = (categories || []).find(c => c.id === parseInt(b.categoryId));
         labels.push(cat ? cat.name : 'Category');
         budgetVals.push(parseFloat(b.amount || 0));
 
-        const spent = transactions
+        const spent = (transactions || [])
             .filter(t => t.type === 'expense' && parseInt(t.category) === parseInt(b.categoryId))
             .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
         spentVals.push(spent);
     });
-
-    if (budgetRadarChart) budgetRadarChart.destroy();
 
     budgetRadarChart = new Chart(ctx, {
         type: 'radar',
@@ -605,12 +622,16 @@ async function renderBudgetRadarChart(transactions, budgets, categories, currenc
 // ─── 6. Investment Asset Allocation Polar Area Chart ──────────────────────────
 async function renderAssetAllocationChart(investments, currency) {
     const canvas = document.getElementById('assetAllocChart');
-    if (!canvas) return;
+    if (!canvas || typeof Chart === 'undefined') return;
     const ctx = canvas.getContext('2d');
     const theme = getChartTheme();
 
+    if (assetAllocChart) {
+        try { assetAllocChart.destroy(); } catch(e){}
+    }
+
     if (!investments || !investments.length) {
-        if (assetAllocChart) assetAllocChart.destroy();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         return;
     }
 
@@ -624,8 +645,6 @@ async function renderAssetAllocationChart(investments, currency) {
     const labels = Object.keys(grouped);
     const data = labels.map(k => grouped[k]);
     const colors = labels.map((_, i) => theme.palette[i % theme.palette.length]);
-
-    if (assetAllocChart) assetAllocChart.destroy();
 
     assetAllocChart = new Chart(ctx, {
         type: 'polarArea',
@@ -667,12 +686,16 @@ async function renderAssetAllocationChart(investments, currency) {
 function downloadChartImage(canvasId, fileName = 'chart.png') {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    link.click();
-    if (typeof showToast === 'function') {
-        showToast('Chart exported as image!', 'success');
+    try {
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+        if (typeof showToast === 'function') {
+            showToast('Chart exported as image!', 'success');
+        }
+    } catch(e) {
+        console.warn('Could not export chart:', e);
     }
 }
 
@@ -681,9 +704,9 @@ function loadSpendingInsights(transactions, categories, currency) {
     const container = document.getElementById('spending-insights');
     if (!container) return;
 
-    const expenses = transactions.filter(t => t.type === 'expense');
+    const expenses = (transactions || []).filter(t => t.type === 'expense');
     if (expenses.length === 0) {
-        container.innerHTML = '<div class="text-muted small">No expense data available for this timeframe.</div>';
+        container.innerHTML = '<div class="text-muted small">No expense data recorded yet for this timeframe.</div>';
         return;
     }
 
@@ -696,7 +719,7 @@ function loadSpendingInsights(transactions, categories, currency) {
     });
 
     const topCatId = Object.keys(catTotals).sort((a, b) => catTotals[b] - catTotals[a])[0];
-    const topCat = categories.find(c => c.id === parseInt(topCatId));
+    const topCat = (categories || []).find(c => c.id === parseInt(topCatId));
     const topCatName = topCat ? topCat.name : 'Top Category';
     const topCatAmount = catTotals[topCatId] || 0;
     const topCatPct = totalExpense > 0 ? Math.round((topCatAmount / totalExpense) * 100) : 0;
@@ -726,16 +749,16 @@ function loadTaxEstimation(transactions, currency) {
     const container = document.getElementById('tax-estimation');
     if (!container) return;
 
-    const totalIncome = transactions
+    const totalIncome = (transactions || [])
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
 
-    const estDeductions = transactions
+    const estDeductions = (transactions || [])
         .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0) * 0.15; // 15% deductible baseline
+        .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0) * 0.15;
 
     const taxableIncome = Math.max(0, totalIncome - estDeductions);
-    const estTax = Math.round(taxableIncome * 0.18); // standard progressive estimate rate ~18%
+    const estTax = Math.round(taxableIncome * 0.18);
 
     container.innerHTML = `
         <div class="row g-3">
@@ -761,31 +784,35 @@ function loadTaxEstimation(transactions, currency) {
 
 // ─── CSV Export Functionality ─────────────────────────────────────────────────
 async function exportReportCSV() {
-    const userId = parseInt(Auth.getCurrentUserId());
-    const transactions = await DB.getUserTransactions(userId);
-    const categories = await DB.getUserCategories(userId);
+    try {
+        const userId = parseInt(Auth.getCurrentUserId());
+        const transactions = (await DB.getUserTransactions(userId)) || [];
+        const categories = (await DB.getUserCategories(userId)) || [];
 
-    const headers = ['Date', 'Type', 'Category', 'Amount', 'Description'];
-    const rows = transactions.map(t => {
-        const cat = categories.find(c => c.id === parseInt(t.category));
-        return [
-            t.date || '',
-            t.type || '',
-            `"${(cat ? cat.name : 'Unknown').replace(/"/g, '""')}"`,
-            t.amount || 0,
-            `"${(t.description || '').replace(/"/g, '""')}"`
-        ];
-    });
+        const headers = ['Date', 'Type', 'Category', 'Amount', 'Description'];
+        const rows = transactions.map(t => {
+            const cat = categories.find(c => c.id === parseInt(t.category));
+            return [
+                t.date || '',
+                t.type || '',
+                `"${(cat ? cat.name : 'Unknown').replace(/"/g, '""')}"`,
+                t.amount || 0,
+                `"${(t.description || '').replace(/"/g, '""')}"`
+            ];
+        });
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `pesatrucker_report_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    if (typeof showToast === 'function') {
-        showToast('Report downloaded as CSV!', 'success');
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `pesatrucker_report_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        if (typeof showToast === 'function') {
+            showToast('Report downloaded as CSV!', 'success');
+        }
+    } catch(e) {
+        console.error('CSV export failed:', e);
     }
 }

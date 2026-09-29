@@ -983,36 +983,59 @@ async function loadLicenseView() {
 }
 
 // Load Profile View
-function loadProfileView() {
-    const user = Auth.getCurrentUser();
+async function loadProfileView() {
+    let user = Auth.getCurrentUser();
     const userId = Auth.getCurrentUserId();
 
-    document.getElementById('profile-content').innerHTML = `
-        <div class="profile-avatar-section">
-            <div class="profile-avatar" id="profile-avatar-preview">
+    if (!user && userId) {
+        try {
+            user = await DB.getUser(parseInt(userId));
+            if (user) {
+                Auth.currentUser = user;
+            }
+        } catch (e) {
+            console.error('Error fetching user for profile:', e);
+        }
+    }
+
+    if (!user) {
+        const storedName = localStorage.getItem('userName') || sessionStorage.getItem('userName') || 'User';
+        const storedEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || '';
+        user = { name: storedName, email: storedEmail, createdAt: new Date().toISOString() };
+    }
+
+    const container = document.getElementById('profile-content');
+    if (!container) return;
+
+    const memberSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Active Member';
+
+    container.innerHTML = `
+        <div class="profile-avatar-section mb-4 text-center">
+            <div class="profile-avatar mx-auto mb-3" id="profile-avatar-preview">
                 ${user.profileImage ? `<img src="${user.profileImage}" alt="Profile">` : '<i class="bi bi-person"></i>'}
             </div>
             <div class="profile-meta">
-                <div class="text-muted">User ID: ${userId}</div>
-                <div class="text-muted">Member Since: ${new Date(user.createdAt).toLocaleDateString()}</div>
+                <div class="fw-bold fs-5">${user.name || 'User'}</div>
+                <div class="text-muted small">User ID: #${userId || '1'}</div>
+                <div class="text-muted small">Member Since: ${memberSince}</div>
             </div>
         </div>
         <form id="profile-form" onsubmit="handleProfileSave(event)">
             <div class="mb-3">
-                <label class="form-label">Full Name</label>
+                <label class="form-label fw-semibold">Full Name</label>
                 <input type="text" class="form-control" id="profile-name" value="${user.name || ''}" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Email</label>
+                <label class="form-label fw-semibold">Email Address</label>
                 <input type="email" class="form-control" id="profile-email" value="${user.email || ''}" required>
             </div>
             <div class="mb-3">
-                <label class="form-label">Profile Photo</label>
+                <label class="form-label fw-semibold">Profile Photo</label>
                 <input type="file" class="form-control" id="profile-image" accept="image/*">
                 <small class="text-muted">JPG/PNG up to 2MB recommended.</small>
             </div>
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary flex-fill">Save Changes</button>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-check2-circle me-1"></i> Save Changes</button>
                 <button type="button" class="btn btn-outline-secondary flex-fill" onclick="loadProfileView()">Reset</button>
             </div>
         </form>
@@ -1076,11 +1099,23 @@ async function handleProfileSave(event) {
     }
 }
 
-// Logout
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
+// Logout & Confirm Logout
+async function confirmLogout() {
+    const ok = typeof UIConfirm !== 'undefined'
+        ? await UIConfirm.show('Are you sure you want to log out of PesaTrucker?', {
+            title: 'Log Out',
+            confirmText: 'Log Out',
+            confirmClass: 'btn-danger',
+            icon: 'bi-box-arrow-right'
+        })
+        : confirm('Are you sure you want to log out?');
+    if (ok) {
         Auth.logout();
     }
+}
+
+function logout() {
+    confirmLogout();
 }
 
 // Toast Notification
