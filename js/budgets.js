@@ -1,72 +1,54 @@
-// Budgets Module
+// Budgets Module — Improved with undo-delete, named budgets, styled confirms
 
-// Show Add Budget Modal
+// ─── Show Add Budget Modal ─────────────────────────────────────────────────────
 function showAddBudgetModal() {
     const modal = new bootstrap.Modal(document.getElementById('budgetModal'));
     const form = document.getElementById('budgetForm');
-    
-    // Reset form
     form.reset();
     document.getElementById('budget-id').value = '';
-    
+    document.getElementById('budgetModalTitle').textContent = 'Create Budget';
     modal.show();
 }
 
-// Handle Budget Submit
+// ─── Handle Budget Submit ──────────────────────────────────────────────────────
 async function handleBudgetSubmit(event) {
     event.preventDefault();
-    
     const userId = parseInt(Auth.getCurrentUserId());
     const id = document.getElementById('budget-id').value;
     const category = parseInt(document.getElementById('budget-category').value);
     const amount = parseFloat(document.getElementById('budget-amount').value);
     const period = document.getElementById('budget-period').value;
-    
-    const budget = {
-        userId,
-        category,
-        amount,
-        period,
-        createdAt: new Date().toISOString()
-    };
-    
+    const name = document.getElementById('budget-name')?.value?.trim() || '';
+
+    if (!amount || amount <= 0) { showToast('Amount must be greater than 0', 'error'); return; }
+
+    const budget = { userId, category, amount, period, name, createdAt: new Date().toISOString() };
+
     try {
         if (id) {
-            // Update existing budget
             budget.id = parseInt(id);
             await DB.update('budgets', budget);
-            showToast('Budget updated successfully', 'success');
+            showToast('Budget updated', 'success');
         } else {
-            // Check if budget already exists for this category
             const existingBudgets = await DB.getUserBudgets(userId);
             const exists = existingBudgets.find(b => b.category === category && b.period === period);
-            
             if (exists) {
-                showToast('Budget already exists for this category and period', 'error');
+                showToast('A budget already exists for this category and period', 'error');
                 return;
             }
-            
-            // Add new budget
             await DB.add('budgets', budget);
-            showToast('Budget added successfully', 'success');
+            showToast('Budget created!', 'success');
         }
-        
-        // Close modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('budgetModal'));
-        modal.hide();
-        
-        // Reload budgets view
+
+        bootstrap.Modal.getInstance(document.getElementById('budgetModal')).hide();
         loadBudgetsView();
-        
-        // Add to sync queue
         await addToSyncQueue('budget', budget);
-        
     } catch (error) {
         showToast('Error saving budget: ' + error.message, 'error');
     }
 }
 
-// Load Budgets View
+// ─── Load Budgets View ─────────────────────────────────────────────────────────
 async function loadBudgetsView() {
     const userId = parseInt(Auth.getCurrentUserId());
     const budgets = await DB.getUserBudgets(userId);
@@ -74,64 +56,53 @@ async function loadBudgetsView() {
     const categories = await DB.getUserCategories(userId);
     const settings = await DB.getUserSettings(userId);
     const currency = App.getCurrencySymbol(settings?.currency || 'TZS');
-    
+
     const container = document.getElementById('budgets-list');
-    
+
     if (budgets.length === 0) {
-        container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-pie-chart"></i><p>No budgets created yet</p></div></div>';
+        container.innerHTML = `<div class="col-12">${renderEmptyState('pie-chart', 'No budgets yet', 'Create spending limits for your expense categories.', 'showAddBudgetModal()', 'Create Budget')}</div>`;
         return;
     }
-    
-    // Get current period transactions
+
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     container.innerHTML = budgets.map(budget => {
         const category = categories.find(c => c.id === budget.category);
-        const categoryName = category ? category.name : 'Unknown';
+        const categoryName = budget.name || (category ? category.name : 'Unknown');
         const icon = category ? category.icon : 'circle';
-        
-        // Calculate spent amount
+
         const categoryTransactions = transactions.filter(t => {
             const date = new Date(t.date);
-            
-            // Filter by period
             let inPeriod = false;
-            if (budget.period === 'monthly') {
-                inPeriod = date >= firstDay;
-            } else if (budget.period === 'quarterly') {
-                const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-                inPeriod = date >= quarterStart;
+            if (budget.period === 'monthly') inPeriod = date >= firstDay;
+            else if (budget.period === 'quarterly') {
+                const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+                inPeriod = date >= qStart;
             } else if (budget.period === 'yearly') {
-                const yearStart = new Date(now.getFullYear(), 0, 1);
-                inPeriod = date >= yearStart;
+                inPeriod = date >= new Date(now.getFullYear(), 0, 1);
             }
-            
             return t.category === budget.category && t.type === 'expense' && inPeriod;
         });
-        
-        const spent = categoryTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+        const spent = categoryTransactions.reduce((s, t) => s + parseFloat(t.amount), 0);
         const remaining = budget.amount - spent;
         const percentage = (spent / budget.amount) * 100;
-        
-        // Determine status
-        let statusClass = 'success';
-        let statusText = 'On Track';
-        if (percentage >= 100) {
-            statusClass = 'danger';
-            statusText = 'Over Budget';
-        } else if (percentage >= 80) {
-            statusClass = 'warning';
-            statusText = 'Near Limit';
-        }
-        
+
+        let statusClass = 'success', statusText = 'On Track';
+        if (percentage >= 100) { statusClass = 'danger'; statusText = 'Over Budget'; }
+        else if (percentage >= 80) { statusClass = 'warning'; statusText = 'Near Limit'; }
+
+        const daysLeft = Math.ceil((new Date(now.getFullYear(), now.getMonth() + 1, 0) - now) / 86400000);
+        const dailyBudget = remaining > 0 ? (remaining / daysLeft).toFixed(2) : '0.00';
+
         return `
             <div class="col-md-6 col-lg-4">
                 <div class="card budget-card ${statusClass === 'danger' ? 'danger' : statusClass === 'warning' ? 'warning' : ''}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-box bg-${statusClass} me-2" style="width: 40px; height: 40px; font-size: 1rem;">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="icon-box bg-${statusClass}" style="width:40px;height:40px;font-size:1rem;">
                                     <i class="bi bi-${icon}"></i>
                                 </div>
                                 <div>
@@ -149,75 +120,75 @@ async function loadBudgetsView() {
                                 </ul>
                             </div>
                         </div>
-                        
+
                         <div class="mb-2">
                             <div class="d-flex justify-content-between mb-1">
-                                <span>Spent</span>
+                                <span class="text-muted small">Spent</span>
                                 <span class="fw-bold">${App.formatCurrency(spent, currency)}</span>
                             </div>
                             <div class="progress budget-progress">
-                                <div class="progress-bar bg-${statusClass}" style="width: ${Math.min(percentage, 100)}%"></div>
+                                <div class="progress-bar bg-${statusClass}" style="width:${Math.min(percentage, 100)}%;transition:width 0.6s ease;"></div>
                             </div>
                         </div>
-                        
-                        <div class="d-flex justify-content-between text-muted small">
+
+                        <div class="d-flex justify-content-between text-muted small mb-2">
                             <span>Budget: ${App.formatCurrency(budget.amount, currency)}</span>
                             <span>${percentage.toFixed(0)}% used</span>
                         </div>
-                        
-                        <div class="mt-3 pt-3 border-top">
-                            <div class="d-flex justify-content-between">
-                                <span class="text-muted">Remaining</span>
-                                <span class="fw-bold ${remaining >= 0 ? 'text-success' : 'text-danger'}">
-                                    ${App.formatCurrency(Math.abs(remaining), currency)}
-                                </span>
+
+                        <div class="border-top pt-2 mt-1">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-muted small">Remaining</div>
+                                    <div class="fw-bold ${remaining >= 0 ? 'text-success' : 'text-danger'}">
+                                        ${remaining >= 0 ? '' : '-'}${App.formatCurrency(Math.abs(remaining), currency)}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="text-muted small">Daily budget</div>
+                                    <div class="fw-semibold">${currency}${dailyBudget}</div>
+                                </div>
                             </div>
                             <span class="badge bg-${statusClass} mt-2">${statusText}</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
     }).join('');
 }
 
-// Edit Budget
+// ─── Edit Budget ───────────────────────────────────────────────────────────────
 async function editBudget(id) {
     const budget = await DB.get('budgets', id);
-    
-    if (!budget) {
-        showToast('Budget not found', 'error');
-        return;
-    }
-    
-    // Fill form
+    if (!budget) { showToast('Budget not found', 'error'); return; }
+
     document.getElementById('budget-id').value = budget.id;
     document.getElementById('budget-category').value = budget.category;
     document.getElementById('budget-amount').value = budget.amount;
     document.getElementById('budget-period').value = budget.period;
-    
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('budgetModal'));
-    modal.show();
+    if (document.getElementById('budget-name')) document.getElementById('budget-name').value = budget.name || '';
+    document.getElementById('budgetModalTitle').textContent = 'Edit Budget';
+
+    new bootstrap.Modal(document.getElementById('budgetModal')).show();
 }
 
-// Delete Budget
+// ─── Delete Budget (with undo) ─────────────────────────────────────────────────
 async function deleteBudget(id) {
-    if (!confirm('Are you sure you want to delete this budget?')) {
-        return;
-    }
-    
-    try {
-        await DB.delete('budgets', id);
-        showToast('Budget deleted successfully', 'success');
-        
-        // Reload budgets view
+    const budget = await DB.get('budgets', id);
+    if (!budget) return;
+    const ok = await UIConfirm.danger('Delete this budget limit?', 'Delete Budget?');
+    if (!ok) return;
+
+    await DB.delete('budgets', id);
+
+    UndoManager.push('Budget deleted', async () => {
+        delete budget.id;
+        await DB.add('budgets', budget);
         loadBudgetsView();
-        
-        // Add to sync queue
-        await addToSyncQueue('delete_budget', { id });
-        
-    } catch (error) {
-        showToast('Error deleting budget: ' + error.message, 'error');
-    }
+        showToast('Budget restored', 'success');
+    });
+
+    showToast('Budget deleted', 'success');
+    loadBudgetsView();
+    await addToSyncQueue('delete_budget', { id });
 }

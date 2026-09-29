@@ -184,9 +184,11 @@ async function handleCategorySubmit(event) {
 
 // Delete Category
 async function deleteCategory(id) {
-    if (!confirm('Are you sure you want to delete this category? This will affect all transactions and budgets using this category.')) {
-        return;
-    }
+    const ok = await UIConfirm.warn(
+        'This will affect all transactions and budgets using this category.',
+        'Delete Category?'
+    );
+    if (!ok) return;
     
     try {
         const userId = parseInt(Auth.getCurrentUserId());
@@ -224,10 +226,9 @@ async function deleteCategory(id) {
     }
 }
 
-// Export Data
+// Export Data as JSON
 async function exportData() {
     const userId = parseInt(Auth.getCurrentUserId());
-    
     const data = {
         user: Auth.getCurrentUser(),
         transactions: await DB.getUserTransactions(userId),
@@ -235,21 +236,19 @@ async function exportData() {
         bills: await DB.getUserBills(userId),
         categories: await DB.getUserCategories(userId),
         settings: await DB.getUserSettings(userId),
+        goals: await (DB.getUserGoals ? DB.getUserGoals(userId) : Promise.resolve([])),
+        investments: await (DB.getUserInvestments ? DB.getUserInvestments(userId) : Promise.resolve([])),
         exportedAt: new Date().toISOString()
     };
-    
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
     const a = document.createElement('a');
     a.href = url;
-    a.download = `financeflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `pesatrucker-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
-    
     URL.revokeObjectURL(url);
-    
-    showToast('Data exported successfully', 'success');
+    showToast('Backup exported successfully', 'success');
 }
 
 // Import Data

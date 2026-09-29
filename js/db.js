@@ -1,7 +1,7 @@
 // IndexedDB Database Module
 const DB = {
     name: 'PesaTruckerDB',
-    version: 1,
+    version: 3,
     db: null,
 
     // Initialize Database
@@ -65,6 +65,25 @@ const DB = {
                 // License Store
                 if (!db.objectStoreNames.contains('license')) {
                     db.createObjectStore('license', { keyPath: 'userId' });
+                }
+
+                // Goals Store
+                if (!db.objectStoreNames.contains('goals')) {
+                    const goalStore = db.createObjectStore('goals', { keyPath: 'id', autoIncrement: true });
+                    goalStore.createIndex('userId', 'userId', { unique: false });
+                }
+
+                // Investments Store
+                if (!db.objectStoreNames.contains('investments')) {
+                    const investStore = db.createObjectStore('investments', { keyPath: 'id', autoIncrement: true });
+                    investStore.createIndex('userId', 'userId', { unique: false });
+                }
+
+                // Events Store
+                if (!db.objectStoreNames.contains('events')) {
+                    const eventStore = db.createObjectStore('events', { keyPath: 'id', autoIncrement: true });
+                    eventStore.createIndex('userId', 'userId', { unique: false });
+                    eventStore.createIndex('date', 'date', { unique: false });
                 }
             };
         });
@@ -166,6 +185,21 @@ const DB = {
 
     async getUserLicense(userId) {
         return this.get('license', userId);
+    },
+
+    async getUserGoals(userId) {
+        if (!this.db.objectStoreNames.contains('goals')) return [];
+        return this.getAllByIndex('goals', 'userId', userId);
+    },
+
+    async getUserInvestments(userId) {
+        if (!this.db.objectStoreNames.contains('investments')) return [];
+        return this.getAllByIndex('investments', 'userId', userId);
+    },
+
+    async getUserEvents(userId) {
+        if (!this.db.objectStoreNames.contains('events')) return [];
+        return this.getAllByIndex('events', 'userId', userId);
     },
 
     // Initialize default categories for new user

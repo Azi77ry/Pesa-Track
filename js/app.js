@@ -269,25 +269,24 @@ const App = {
         const currentBalance = totalIncome - totalExpenses;
         const monthlyRemaining = monthIncome - monthExpenses;
 
-        // Update summary cards
-        document.getElementById('total-income').textContent = this.formatCurrency(totalIncome, currency);
-        document.getElementById('total-expenses').textContent = this.formatCurrency(totalExpenses, currency);
+        // Update summary cards — all use CURRENT MONTH for consistency
+        document.getElementById('total-income').textContent = this.formatCurrency(monthIncome, currency);
+        document.getElementById('total-expenses').textContent = this.formatCurrency(monthExpenses, currency);
 
         const currentBalanceEl = document.getElementById('current-balance');
         if (currentBalanceEl) {
+            // Current balance is always all-time (actual wallet)
             currentBalanceEl.textContent = this.formatCurrency(currentBalance, currency);
         }
 
         const monthlyRemainingEl = document.getElementById('monthly-remaining');
         if (monthlyRemainingEl) {
-            monthlyRemainingEl.textContent = this.formatCurrency(monthlyRemaining, currency);
+            monthlyRemainingEl.textContent = this.formatCurrency(monthIncome - monthExpenses, currency);
         }
 
         const heroBalance = document.getElementById('hero-current-balance');
         if (heroBalance) {
-            heroBalance.textContent = currentBalanceEl
-                ? currentBalanceEl.textContent
-                : this.formatCurrency(currentBalance, currency);
+            heroBalance.textContent = this.formatCurrency(currentBalance, currency);
         }
 
         const heroUser = document.getElementById('hero-username');
@@ -298,15 +297,56 @@ const App = {
         }
 
         await this.loadWeeklyExpenseChart(transactions, currency);
-
-        // Load recent transactions
         await this.loadRecentTransactions();
-
-        // Load upcoming bills
         await this.loadUpcomingBills();
-
-        // Load budget alerts
         await this.loadBudgetAlerts();
+        this.loadDashboardInsights(monthTransactions, transactions, currency);
+    },
+
+    // Spending Insights mini-card on dashboard
+    loadDashboardInsights(monthTransactions, allTransactions, currency) {
+        const container = document.getElementById('dashboard-insights-card');
+        if (!container) return;
+
+        const monthIncome = monthTransactions.filter(t => t.type === 'income').reduce((s, t) => s + parseFloat(t.amount), 0);
+        const monthExpenses = monthTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + parseFloat(t.amount), 0);
+        const savingsRate = monthIncome > 0 ? ((monthIncome - monthExpenses) / monthIncome * 100).toFixed(0) : '0';
+
+        // Month-over-month expense change
+        const now = new Date();
+        const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        const lastMonthExpenses = allTransactions
+            .filter(t => t.type === 'expense' && new Date(t.date) >= lastMonthStart && new Date(t.date) <= lastMonthEnd)
+            .reduce((s, t) => s + parseFloat(t.amount), 0);
+
+        const changeVsLastMonth = lastMonthExpenses > 0
+            ? (((monthExpenses - lastMonthExpenses) / lastMonthExpenses) * 100).toFixed(0)
+            : null;
+
+        const isGood = parseInt(savingsRate) >= 20;
+        const expChangeClass = changeVsLastMonth !== null ? (parseFloat(changeVsLastMonth) <= 0 ? 'text-success' : 'text-danger') : '';
+        const expChangeIcon = changeVsLastMonth !== null ? (parseFloat(changeVsLastMonth) <= 0 ? 'arrow-down-circle' : 'arrow-up-circle') : '';
+
+        container.innerHTML = `
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="insight-chip">
+                        <div class="insight-label">Savings Rate</div>
+                        <div class="insight-value ${isGood ? 'text-success' : parseInt(savingsRate) >= 10 ? 'text-warning' : 'text-danger'}">${savingsRate}%</div>
+                        <div class="insight-sub">${isGood ? 'Great job!' : parseInt(savingsRate) >= 10 ? 'Getting there' : 'Needs attention'}</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="insight-chip">
+                        <div class="insight-label">vs Last Month</div>
+                        <div class="insight-value ${expChangeClass}">
+                            ${changeVsLastMonth !== null ? `<i class="bi bi-${expChangeIcon} me-1"></i>${Math.abs(changeVsLastMonth)}%` : 'N/A'}
+                        </div>
+                        <div class="insight-sub">spending change</div>
+                    </div>
+                </div>
+            </div>`;
     },
 
     async loadWeeklyExpenseChart(transactions, currency) {
@@ -565,12 +605,10 @@ const App = {
     // Helper Functions
     getCurrencySymbol(code) {
         const symbols = {
-            'USD': '$',
-            'EUR': '€',
-            'GBP': '£',
-            'JPY': '¥',
-            'TZS': 'TSh',
-            'KES': 'KSh'
+            'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
+            'TZS': 'TSh', 'KES': 'KSh', 'UGX': 'USh', 'RWF': 'FRw',
+            'ZAR': 'R', 'NGN': '₦', 'GHS': 'GH₵', 'ETB': 'Br',
+            'INR': '₹', 'CNY': '¥', 'AED': 'AED', 'SAR': 'SAR'
         };
         return symbols[code] || code;
     },
@@ -715,7 +753,7 @@ App.applyLanguage = function (language = 'en') {
 App.getNavGroup = function (viewId) {
     if (viewId === 'dashboard-view') return 'home';
     if (['transactions-view', 'bills-view', 'events-view'].includes(viewId)) return 'activity';
-    if (['reports-view', 'budgets-view'].includes(viewId)) return 'insights';
+    if (['reports-view', 'budgets-view', 'goals-view', 'investments-view'].includes(viewId)) return 'insights';
     if (['profile-view', 'settings-view', 'license-view', 'help-view'].includes(viewId)) return 'profile';
     return '';
 };
@@ -881,6 +919,69 @@ function showSettings() {
     loadSettingsView();
 }
 
+function showLicense() {
+    showView('license-view');
+    loadLicenseView();
+}
+
+async function loadLicenseView() {
+    const userId = parseInt(Auth.getCurrentUserId());
+    const container = document.getElementById('license-info-content');
+    if (!container) return;
+
+    try {
+        const license = await DB.getUserLicense(userId);
+        if (!license) {
+            container.innerHTML = `
+                <div class="text-center p-4">
+                    <i class="bi bi-shield-x text-danger" style="font-size:3rem"></i>
+                    <h5 class="mt-3">No Active License</h5>
+                    <p class="text-muted">Your license may have expired.</p>
+                    <button class="btn btn-primary" onclick="showActivationPage()">Activate License</button>
+                </div>`;
+            return;
+        }
+
+        const isLifetime = license.type === 'LIFETIME';
+        const expiresAt = isLifetime ? null : new Date(license.expiresAt);
+        const now = new Date();
+        const daysLeft = isLifetime ? Infinity : Math.max(0, Math.ceil((expiresAt - now) / 86400000));
+        const isExpired = !isLifetime && expiresAt < now;
+        const activatedAt = new Date(license.activatedAt);
+        const typeLabel = License.typeLabels[license.type] || license.type;
+
+        container.innerHTML = `
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="bi bi-shield-check text-${isExpired ? 'danger' : 'success'}" style="font-size:3rem"></i>
+                    </div>
+                    <h4 class="fw-bold">${typeLabel}</h4>
+                    <div class="badge bg-${isExpired ? 'danger' : 'success'} mb-3 px-3 py-2">
+                        ${isExpired ? 'Expired' : isLifetime ? 'Lifetime Access' : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining`}
+                    </div>
+                    <div class="row g-3 mt-2 text-start">
+                        <div class="col-6">
+                            <div class="text-muted small">Activated</div>
+                            <div class="fw-semibold">${activatedAt.toLocaleDateString()}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-muted small">Expires</div>
+                            <div class="fw-semibold">${isLifetime ? 'Never' : (expiresAt ? expiresAt.toLocaleDateString() : 'N/A')}</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small">Activation Code</div>
+                            <div class="fw-semibold font-monospace small">${license.activationCode || 'Free Trial'}</div>
+                        </div>
+                    </div>
+                    ${isExpired ? `<div class="mt-4"><button class="btn btn-primary w-100" onclick="showActivationPage()"><i class="bi bi-key me-2"></i>Renew License</button></div>` : ''}
+                </div>
+            </div>`;
+    } catch (e) {
+        container.innerHTML = '<p class="text-muted text-center">Could not load license info.</p>';
+    }
+}
+
 // Load Profile View
 function loadProfileView() {
     const user = Auth.getCurrentUser();
@@ -1008,5 +1109,21 @@ document.addEventListener('DOMContentLoaded', () => {
             closeQuickAddSheet();
         }
     });
+
+    // Handle Service Worker notification click view routing
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'NAVIGATE_VIEW') {
+                const target = event.data.view;
+                if (target === 'bills-view') showBills();
+                else if (target === 'budgets-view') showBudgets();
+                else if (target === 'goals-view') showGoals();
+                else if (target === 'investments-view') showInvestments();
+                else if (target === 'reports-view') showReports();
+                else showDashboard();
+            }
+        });
+    }
+
     App.init();
 });

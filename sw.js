@@ -1,5 +1,5 @@
 // Service Worker for PesaTrucker PWA
-const CACHE_NAME = 'pesatrucker-v21';
+const CACHE_NAME = 'pesatrucker-v23';
 const BASE_PATH = '/Pesa-Track';
 const urlsToCache = [
     `${BASE_PATH}/`,
@@ -22,6 +22,8 @@ const urlsToCache = [
     `${BASE_PATH}/js/auth.js`,
     `${BASE_PATH}/js/license-keys.js`,
     `${BASE_PATH}/js/license.js`,
+    `${BASE_PATH}/js/ui-helpers.js`,
+    `${BASE_PATH}/js/notifications.js`,
     `${BASE_PATH}/js/app.js`,
     `${BASE_PATH}/js/ai.js`,
     `${BASE_PATH}/js/transactions.js`,
@@ -30,6 +32,8 @@ const urlsToCache = [
     `${BASE_PATH}/js/events.js`,
     `${BASE_PATH}/js/reports.js`,
     `${BASE_PATH}/js/settings.js`,
+    `${BASE_PATH}/js/goals.js`,
+    `${BASE_PATH}/js/investments.js`,
     `${BASE_PATH}/js/sync.js`,
     `${BASE_PATH}/README.md`,
     `${BASE_PATH}/QUICKSTART.md`,
@@ -114,33 +118,64 @@ self.addEventListener('sync', event => {
 });
 
 async function syncData() {
-    // This would sync data with the server
     console.log('Background sync triggered');
-    
-    // In production, this would:
-    // 1. Get unsync items from IndexedDB
-    // 2. Send them to the server
-    // 3. Mark them as synced
 }
 
 // Push Notifications
 self.addEventListener('push', event => {
+    let data = {};
+    try {
+        data = event.data ? event.data.json() : {};
+    } catch (e) {
+        data = { body: event.data ? event.data.text() : 'Financial update available' };
+    }
+
+    const title = data.title || 'PesaTrucker Alert';
     const options = {
-        body: event.data ? event.data.text() : 'New notification',
-        icon: `${BASE_PATH}/assets/icon192.png`,
-        badge: `${BASE_PATH}/assets/icon192.png`,
-        vibrate: [200, 100, 200]
+        body: data.body || 'You have a new update in PesaTrucker.',
+        icon: data.icon || `${BASE_PATH}/assets/icon192.png`,
+        badge: data.badge || `${BASE_PATH}/assets/icon192.png`,
+        vibrate: data.vibrate || [100, 50, 100, 50, 200],
+        tag: data.tag || 'pesatrucker-push',
+        renotify: true,
+        data: data.data || { view: 'dashboard-view', url: `${BASE_PATH}/` },
+        actions: data.actions || [
+            { action: 'open', title: 'Open App' },
+            { action: 'dismiss', title: 'Dismiss' }
+        ]
     };
 
     event.waitUntil(
-        self.registration.showNotification('PesaTrucker', options)
+        self.registration.showNotification(title, options)
     );
 });
 
-// Notification Click
+// Notification Click Handler (System Notification Bar on mobile & desktop)
 self.addEventListener('notificationclick', event => {
     event.notification.close();
+
+    if (event.action === 'dismiss') {
+        return;
+    }
+
+    const notifData = event.notification.data || {};
+    const targetUrl = notifData.url || `${BASE_PATH}/`;
+    const targetView = notifData.view || 'dashboard-view';
+
     event.waitUntil(
-        clients.openWindow(`${BASE_PATH}/`)
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            for (let client of windowClients) {
+                if (client.url.includes(BASE_PATH) && 'focus' in client) {
+                    client.postMessage({
+                        type: 'NAVIGATE_VIEW',
+                        view: targetView
+                    });
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl);
+            }
+        })
     );
 });

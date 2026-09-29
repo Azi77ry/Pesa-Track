@@ -161,7 +161,18 @@
                             </div>
                         </div>
 
-                        <div class="quick-actions-grid mb-4">
+                        <!-- Spending Insights Card -->
+                        <div class="card panel-card mb-4">
+                            <div class="card-header bg-white panel-header">
+                                <h5 class="mb-0"><i class="bi bi-lightning-charge me-2 text-warning"></i>This Month's Insights</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="dashboard-insights-card">
+                                    <div class="text-muted small">Loading insights...</div>
+                                </div>
+                            </div>
+                        </div>
+
                             <button class="quick-action-tile" type="button" onclick="showAddTransactionModal('income')">
                                 <div class="tile-icon tile-icon-income">
                                     <i class="bi bi-arrow-down-circle"></i>
@@ -270,47 +281,66 @@
                         </div>
 
                         <!-- Filters -->
-                        <div class="card panel-card mb-4">
+                        <div class="card panel-card mb-3">
                             <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-md-3">
-                                        <label class="form-label">Type</label>
-                                        <select class="form-select" id="filter-type" onchange="filterTransactions()">
+                                <div class="row g-2">
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-semibold">Type</label>
+                                        <select class="form-select form-select-sm" id="filter-type" onchange="filterTransactions()">
                                             <option value="all">All</option>
                                             <option value="income">Income</option>
                                             <option value="expense">Expense</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Category</label>
-                                        <select class="form-select" id="filter-category" onchange="filterTransactions()">
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-semibold">Category</label>
+                                        <select class="form-select form-select-sm" id="filter-category" onchange="filterTransactions()">
                                             <option value="all">All Categories</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Period</label>
-                                        <select class="form-select" id="filter-period" onchange="filterTransactions()">
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-semibold">Period</label>
+                                        <select class="form-select form-select-sm" id="filter-period" onchange="onFilterPeriodChange()">
                                             <option value="all">All Time</option>
                                             <option value="today">Today</option>
                                             <option value="week">This Week</option>
                                             <option value="month" selected>This Month</option>
                                             <option value="year">This Year</option>
+                                            <option value="custom">Custom Range</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Search</label>
-                                        <input type="text" class="form-control" id="filter-search" placeholder="Search notes..." onkeyup="filterTransactions()">
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-semibold">Search</label>
+                                        <input type="text" class="form-control form-control-sm" id="filter-search" placeholder="Category, note, amount..." oninput="filterTransactions()">
+                                    </div>
+                                </div>
+                                <!-- Custom date range row -->
+                                <div class="row g-2 mt-1 d-none" id="filter-date-range-row">
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">From</label>
+                                        <input type="date" class="form-control form-control-sm" id="filter-date-from" onchange="filterTransactions()">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small fw-semibold">To</label>
+                                        <input type="date" class="form-control form-control-sm" id="filter-date-to" onchange="filterTransactions()">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Transactions List -->
+                        <!-- Filter Summary & Transactions List -->
                         <div class="card panel-card">
+                            <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
+                                <span id="txn-filter-summary" class="small"></span>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="exportTransactionsCSV()" title="Export CSV">
+                                    <i class="bi bi-download me-1"></i>CSV
+                                </button>
+                            </div>
                             <div class="card-body">
                                 <div id="transactions-list">
                                     <!-- Populated by JavaScript -->
                                 </div>
+                                <div id="txn-pagination" class="mt-3"></div>
                             </div>
                         </div>
                     </div>
@@ -337,6 +367,79 @@
                         <div id="budgets-list" class="row g-4 tile-grid">
                             <!-- Populated by JavaScript -->
                         </div>
+                    </div>
+
+                    <!-- Goals View -->
+                    <div id="goals-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="reports-view" onclick="showReports()">Reports</button>
+                            <button class="section-tab" type="button" data-view="budgets-view" onclick="showBudgets()">Budgets</button>
+                            <button class="section-tab active" type="button" data-view="goals-view" onclick="showGoals()">Goals</button>
+                            <button class="section-tab" type="button" data-view="investments-view" onclick="showInvestments()">Investments</button>
+                        </div>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Insights</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-trophy me-2"></i>Financial Goals</h2>
+                                <div class="hero-subtitle">Set savings targets and track your progress.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-primary" onclick="showAddGoalModal()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Goal
+                                </button>
+                            </div>
+                        </div>
+                        <div id="goals-list" class="row g-4"></div>
+                    </div>
+
+                    <!-- Investments / Net Worth View -->
+                    <div id="investments-view" class="content-view d-none">
+                        <div class="section-tabs mb-3">
+                            <button class="section-tab" type="button" data-view="reports-view" onclick="showReports()">Reports</button>
+                            <button class="section-tab" type="button" data-view="budgets-view" onclick="showBudgets()">Budgets</button>
+                            <button class="section-tab" type="button" data-view="goals-view" onclick="showGoals()">Goals</button>
+                            <button class="section-tab active" type="button" data-view="investments-view" onclick="showInvestments()">Investments</button>
+                        </div>
+                        <div class="page-hero mb-4">
+                            <div>
+                                <div class="hero-greeting">Insights</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-graph-up-arrow me-2"></i>Portfolio & Net Worth</h2>
+                                <div class="hero-subtitle">Track your investments and total net worth.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-primary" onclick="showAddInvestmentModal()">
+                                    <i class="bi bi-plus-circle me-1"></i>Add Investment
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Net Worth Summary -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="card summary-card">
+                                    <div class="card-body">
+                                        <p class="text-muted mb-1">Net Worth</p>
+                                        <h3 class="mb-0" id="net-worth-value">—</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card summary-card">
+                                    <div class="card-body">
+                                        <p class="text-muted mb-1">Cash Balance</p>
+                                        <h3 class="mb-0" id="net-worth-cash">—</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card summary-card">
+                                    <div class="card-body">
+                                        <p class="text-muted mb-1">Portfolio Gain/Loss</p>
+                                        <h3 class="mb-0" id="portfolio-gain">—</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="investments-list" class="row g-4"></div>
                     </div>
 
                     <!-- Bills View -->
@@ -396,7 +499,6 @@
                                     <!-- Populated by JavaScript -->
                                 </div>
                             </div>
-                        </div>
                     </div>
 
                     <!-- Reports View -->
@@ -404,24 +506,90 @@
                         <div class="section-tabs mb-3">
                             <button class="section-tab active" type="button" data-view="reports-view" onclick="showReports()" data-i18n="reports">Reports</button>
                             <button class="section-tab" type="button" data-view="budgets-view" onclick="showBudgets()" data-i18n="budgets">Budgets</button>
+                            <button class="section-tab" type="button" data-view="goals-view" onclick="showGoals()">Goals</button>
+                            <button class="section-tab" type="button" data-view="investments-view" onclick="showInvestments()">Investments</button>
                         </div>
                         <div class="page-hero mb-4">
                             <div>
-                                <div class="hero-greeting" data-i18n="insightsKicker">Insights</div>
-                                <h2 class="page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h2>
-                                <div class="hero-subtitle">Explore trends and category distribution.</div>
+                                <div class="hero-greeting" data-i18n="insightsKicker">Analytics &amp; Intelligence</div>
+                                <h2 class="page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reports &amp; Data Visualizations</h2>
+                                <div class="hero-subtitle">Interactive financial charts, cashflow projections, and spending intelligence.</div>
+                            </div>
+                            <div class="hero-actions">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="exportReportCSV()">
+                                    <i class="bi bi-download me-1"></i>Export CSV
+                                </button>
                             </div>
                         </div>
 
+                        <!-- Quick Metrics Summary -->
+                        <div id="report-metrics-summary">
+                            <!-- Populated by JavaScript -->
+                        </div>
+
+                        <!-- Date Range & Quick Timeframe Filter Bar -->
+                        <div class="card panel-card mb-4">
+                            <div class="card-body">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <span class="small fw-bold text-muted me-1">Quick Range:</span>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="setQuickReportPeriod('7d')">7 Days</button>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="setQuickReportPeriod('30d')">30 Days</button>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="setQuickReportPeriod('month')">This Month</button>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="setQuickReportPeriod('quarter')">Quarter</button>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="setQuickReportPeriod('year')">Year</button>
+                                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1" onclick="setQuickReportPeriod('all')">All Time</button>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select class="form-select form-select-sm" id="report-period" style="min-width: 140px;" onchange="onReportPeriodChange()">
+                                            <option value="month" selected>This Month</option>
+                                            <option value="7d">Last 7 Days</option>
+                                            <option value="30d">Last 30 Days</option>
+                                            <option value="quarter">This Quarter</option>
+                                            <option value="year">This Year</option>
+                                            <option value="all">All Time</option>
+                                            <option value="custom">Custom Range...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2 pt-2 border-top d-none" id="report-date-range-row">
+                                    <div class="col-6 col-md-3">
+                                        <label class="form-label small fw-semibold">From</label>
+                                        <input type="date" class="form-control form-control-sm" id="report-date-from" onchange="loadReportsView()">
+                                    </div>
+                                    <div class="col-6 col-md-3" id="report-date-to-col">
+                                        <label class="form-label small fw-semibold">To</label>
+                                        <input type="date" class="form-control form-control-sm" id="report-date-to" onchange="loadReportsView()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Spending Insights Panel -->
+                        <div class="card panel-card mb-4">
+                            <div class="card-header bg-white panel-header">
+                                <h5 class="mb-0"><i class="bi bi-lightning-charge me-2 text-warning"></i>Spending Insights &amp; Metrics</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="spending-insights">
+                                    <div class="text-muted small">Loading insights...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Grid -->
                         <div class="row g-4">
+                            <!-- 1. Category Expense Donut Chart -->
                             <div class="col-lg-6">
                                 <div class="card panel-card reports-card reports-card-breakdown">
-                                    <div class="card-header bg-white panel-header reports-panel-header">
+                                    <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
                                         <div>
-                                        <div class="reports-panel-kicker" data-i18n="overview">Overview</div>
-                                        <h5 class="mb-0">Expense Breakdown</h5>
-                                    </div>
-                                        <div class="reports-chip" data-i18n="topCategories">Top Categories</div>
+                                            <div class="reports-panel-kicker" data-i18n="overview">Distribution</div>
+                                            <h5 class="mb-0">Expense by Category</h5>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download Chart" onclick="downloadChartImage('categoryChart', 'expense_categories.png')">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
                                     </div>
                                     <div class="card-body reports-card-body">
                                         <div class="chart-wrap chart-wrap-donut">
@@ -430,14 +598,18 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- 2. Cash Flow Area Trend Wave Chart -->
                             <div class="col-lg-6">
                                 <div class="card panel-card reports-card reports-card-cashflow">
-                                    <div class="card-header bg-white panel-header reports-panel-header">
+                                    <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div class="reports-panel-kicker" data-i18n="overview">Overview</div>
-                                            <h5 class="mb-0">Cash Flow (Income vs Expenses)</h5>
+                                            <div class="reports-panel-kicker" data-i18n="overview">Trendline</div>
+                                            <h5 class="mb-0">Cash Flow (Inflow vs Outflow)</h5>
                                         </div>
-                                        <div class="reports-chip" data-i18n="sixMonths">6 months</div>
+                                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download Chart" onclick="downloadChartImage('trendChart', 'cashflow_trend.png')">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
                                     </div>
                                     <div class="card-body reports-card-body">
                                         <div class="chart-wrap chart-wrap-cashflow">
@@ -446,18 +618,96 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-12">
+
+                            <!-- 3. Monthly Comparison Grouped Bar Chart -->
+                            <div class="col-lg-6">
                                 <div class="card panel-card reports-card">
-                                    <div class="card-header bg-white panel-header reports-panel-header">
+                                    <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div class="reports-panel-kicker" data-i18n="comparison">Comparison</div>
+                                            <div class="reports-panel-kicker" data-i18n="comparison">Monthly Comparison</div>
                                             <h5 class="mb-0">Income vs Expenses</h5>
                                         </div>
-                                        <div class="reports-chip" data-i18n="sixMonths">6 months</div>
+                                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download Chart" onclick="downloadChartImage('comparisonChart', 'monthly_comparison.png')">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
                                     </div>
                                     <div class="card-body reports-card-body">
                                         <div class="chart-wrap chart-wrap-bars">
                                             <canvas id="comparisonChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. Estimated Net Worth & Savings Growth Chart -->
+                            <div class="col-lg-6">
+                                <div class="card panel-card reports-card">
+                                    <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="reports-panel-kicker">Wealth Trajectory</div>
+                                            <h5 class="mb-0">Net Worth Growth Trend</h5>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download Chart" onclick="downloadChartImage('netWorthChart', 'net_worth_growth.png')">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body reports-card-body">
+                                        <div class="chart-wrap chart-wrap-cashflow">
+                                            <canvas id="netWorthChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Budget vs Actual Radar Chart -->
+                            <div class="col-lg-6">
+                                <div class="card panel-card reports-card">
+                                    <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="reports-panel-kicker">Performance</div>
+                                            <h5 class="mb-0">Budget vs Actual Spent (Radar)</h5>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download Chart" onclick="downloadChartImage('budgetRadarChart', 'budget_radar.png')">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body reports-card-body">
+                                        <div class="chart-wrap chart-wrap-donut">
+                                            <canvas id="budgetRadarChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 6. Investment Asset Allocation Polar Area Chart -->
+                            <div class="col-lg-6">
+                                <div class="card panel-card reports-card">
+                                    <div class="card-header bg-white panel-header d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="reports-panel-kicker">Portfolio</div>
+                                            <h5 class="mb-0">Investment Asset Allocation</h5>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Download Chart" onclick="downloadChartImage('assetAllocChart', 'asset_allocation.png')">
+                                            <i class="bi bi-camera"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body reports-card-body">
+                                        <div class="chart-wrap chart-wrap-donut">
+                                            <canvas id="assetAllocChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tax Estimation Panel -->
+                            <div class="col-12">
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
+                                        <h5 class="mb-0"><i class="bi bi-percent me-2 text-info"></i>Tax &amp; Deductions Estimation</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="tax-estimation">
+                                            <div class="text-muted small">Loading...</div>
                                         </div>
                                     </div>
                                 </div>
@@ -470,7 +720,7 @@
                         <div class="section-tabs mb-3">
                             <button class="section-tab active" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
                             <button class="section-tab" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
-                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicense()">License</button>
                             <button class="section-tab" type="button" data-view="help-view" onclick="showHelp()">Help</button>
                         </div>
                         <div class="page-hero mb-4">
@@ -483,7 +733,7 @@
                                 <button class="btn btn-outline-secondary" type="button" onclick="showSettings()">
                                     <i class="bi bi-sliders me-1"></i>Settings
                                 </button>
-                                <button class="btn btn-outline-secondary" type="button" onclick="showLicenseInfo()">
+                                <button class="btn btn-outline-secondary" type="button" onclick="showLicense()">
                                     <i class="bi bi-shield-check me-1"></i>License
                                 </button>
                             </div>
@@ -506,7 +756,7 @@
                         <div class="section-tabs mb-3">
                             <button class="section-tab" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
                             <button class="section-tab active" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
-                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicense()">License</button>
                             <button class="section-tab" type="button" data-view="help-view" onclick="showHelp()">Help</button>
                         </div>
                         <div class="page-hero mb-4">
@@ -548,12 +798,25 @@
                                                 <option value="sw" data-i18n="swahili">Swahili</option>
                                             </select>
                                         </div>
-                                        <div class="mb-3">
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input" type="checkbox" id="setting-notifications" onchange="saveSetting('notifications', this.checked)">
-                                                <label class="form-check-label" for="setting-notifications" data-i18n="notifications">
-                                                    Enable Notifications
-                                                </label>
+                                        <div class="mb-3 pt-2 border-top">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div>
+                                                    <label class="form-label fw-semibold mb-0">
+                                                        <i class="bi bi-bell-fill text-primary me-1"></i>Phone Notification Bar Alerts
+                                                    </label>
+                                                    <div class="small text-muted">Receive alerts on your phone status bar for bills, budget limits, &amp; goal milestones.</div>
+                                                </div>
+                                                <div class="form-check form-switch fs-5">
+                                                    <input class="form-check-input" type="checkbox" id="setting-notifications" onchange="Notifications.requestPermission(); saveSetting('notifications', this.checked)">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                                <button class="btn btn-sm btn-outline-primary" type="button" onclick="Notifications.sendTestNotification()">
+                                                    <i class="bi bi-broadcast me-1"></i>Test Phone Notification
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary" type="button" onclick="Notifications.requestPermission()">
+                                                    <i class="bi bi-shield-lock me-1"></i>Check Permission
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -583,7 +846,7 @@
                         <div class="section-tabs mb-3">
                             <button class="section-tab" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
                             <button class="section-tab" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
-                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab" type="button" data-view="license-view" onclick="showLicense()">License</button>
                             <button class="section-tab active" type="button" data-view="help-view" onclick="showHelp()">Help</button>
                         </div>
                         <div class="help-hero mb-4">
@@ -743,7 +1006,7 @@
                         <div class="section-tabs mb-3">
                             <button class="section-tab" type="button" data-view="profile-view" onclick="showProfileHome()">Profile</button>
                             <button class="section-tab" type="button" data-view="settings-view" onclick="showSettings()">Settings</button>
-                            <button class="section-tab active" type="button" data-view="license-view" onclick="showLicenseInfo()">License</button>
+                            <button class="section-tab active" type="button" data-view="license-view" onclick="showLicense()">License</button>
                             <button class="section-tab" type="button" data-view="help-view" onclick="showHelp()">Help</button>
                         </div>
                         <h2 class="mb-4"><i class="bi bi-shield-check me-2"></i>License Information</h2>
@@ -1098,10 +1361,13 @@
                     <form id="transactionForm" onsubmit="handleTransactionSubmit(event)">
                         <input type="hidden" id="transaction-id">
                         <input type="hidden" id="transaction-type">
-                        
+
+                        <!-- Balance hint -->
+                        <div class="alert alert-info py-2 mb-3" id="modal-balance-hint" style="font-size:0.85rem;"></div>
+
                         <div class="mb-3">
                             <label class="form-label">Amount</label>
-                            <input type="number" class="form-control" id="transaction-amount" step="0.01" required>
+                            <input type="number" class="form-control" id="transaction-amount" step="0.01" min="0.01" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
@@ -1115,7 +1381,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Note (Optional)</label>
-                            <textarea class="form-control" id="transaction-note" rows="3"></textarea>
+                            <textarea class="form-control" id="transaction-note" rows="2" placeholder="Add a short note..."></textarea>
                         </div>
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary flex-fill">Save</button>
@@ -1132,13 +1398,17 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Budget</h5>
+                    <h5 class="modal-title" id="budgetModalTitle">Create Budget</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="budgetForm" onsubmit="handleBudgetSubmit(event)">
                         <input type="hidden" id="budget-id">
-                        
+
+                        <div class="mb-3">
+                            <label class="form-label">Budget Name <small class="text-muted">(Optional custom name)</small></label>
+                            <input type="text" class="form-control" id="budget-name" placeholder="e.g. Groceries Budget">
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
                             <select class="form-select" id="budget-category" required>
@@ -1147,7 +1417,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Budget Amount</label>
-                            <input type="number" class="form-control" id="budget-amount" step="0.01" required>
+                            <input type="number" class="form-control" id="budget-amount" step="0.01" min="1" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Period</label>
@@ -1221,7 +1491,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Category</h5>
+                    <h5 class="modal-title" id="categoryModalTitle">Add Category</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -1240,14 +1510,27 @@
                         <div class="mb-3">
                             <label class="form-label">Icon</label>
                             <select class="form-select" id="category-icon">
-                                <option value="bag">Shopping Bag</option>
-                                <option value="cart">Cart</option>
-                                <option value="house">House</option>
-                                <option value="car">Car</option>
-                                <option value="heart">Health</option>
-                                <option value="book">Education</option>
-                                <option value="gift">Gift</option>
-                                <option value="briefcase">Work</option>
+                                <option value="bag">🛍️ Shopping Bag</option>
+                                <option value="cart">🛒 Cart</option>
+                                <option value="house">🏠 House / Rent</option>
+                                <option value="car-front">🚗 Transport</option>
+                                <option value="heart">❤️ Health</option>
+                                <option value="book">📚 Education</option>
+                                <option value="gift">🎁 Gift</option>
+                                <option value="briefcase">💼 Work / Salary</option>
+                                <option value="telephone">📞 Phone / Utilities</option>
+                                <option value="lightning-charge">⚡ Electricity</option>
+                                <option value="droplet">💧 Water</option>
+                                <option value="wifi">📡 Internet</option>
+                                <option value="tv">📺 Entertainment</option>
+                                <option value="cup-hot">☕ Food & Drinks</option>
+                                <option value="airplane">✈️ Travel</option>
+                                <option value="piggy-bank">🐷 Savings</option>
+                                <option value="graph-up">📈 Investment</option>
+                                <option value="cash-coin">💰 Business Income</option>
+                                <option value="people">👥 Family</option>
+                                <option value="tools">🔧 Maintenance</option>
+                                <option value="percent">💹 Tax / Fees</option>
                             </select>
                         </div>
                         <div class="d-flex gap-2">
@@ -1257,6 +1540,158 @@
                     </form>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div class="modal fade" id="goalModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Goal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="goalForm" onsubmit="handleGoalSubmit(event)">
+                        <input type="hidden" id="goal-id">
+                        <div class="mb-3">
+                            <label class="form-label">Goal Name</label>
+                            <input type="text" class="form-control" id="goal-name" placeholder="e.g. Emergency Fund" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Target Amount</label>
+                            <input type="number" class="form-control" id="goal-target" step="0.01" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Already Saved</label>
+                            <input type="number" class="form-control" id="goal-saved" step="0.01" min="0" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Deadline (Optional)</label>
+                            <input type="date" class="form-control" id="goal-deadline">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Icon</label>
+                            <select class="form-select" id="goal-icon">
+                                <option value="trophy">🏆 Trophy</option>
+                                <option value="house">🏠 Home</option>
+                                <option value="car-front">🚗 Car</option>
+                                <option value="airplane">✈️ Travel</option>
+                                <option value="piggy-bank">🐷 Savings</option>
+                                <option value="briefcase">💼 Business</option>
+                                <option value="heart">❤️ Health</option>
+                                <option value="book">📚 Education</option>
+                            </select>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">Save Goal</button>
+                            <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investment Modal -->
+    <div class="modal fade" id="investmentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Investment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="investment-form" onsubmit="handleInvestmentSubmit(event)">
+                        <input type="hidden" id="investment-id">
+                        <div class="mb-3">
+                            <label class="form-label">Investment Name</label>
+                            <input type="text" class="form-control" id="investment-name" placeholder="e.g. NMB Savings" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="investment-type" required>
+                                <option value="savings">Savings Account</option>
+                                <option value="stocks">Stocks / Shares</option>
+                                <option value="crypto">Cryptocurrency</option>
+                                <option value="real_estate">Real Estate</option>
+                                <option value="bonds">Bonds / Fixed Income</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount Invested</label>
+                            <input type="number" class="form-control" id="investment-amount" step="0.01" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Current Value</label>
+                            <input type="number" class="form-control" id="investment-current" step="0.01" min="0" placeholder="Leave blank to use invested amount">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes (Optional)</label>
+                            <input type="text" class="form-control" id="investment-notes" placeholder="e.g. NMB account #1234">
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-fill">Save</button>
+                            <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Undo Toast (for delete with undo) -->
+    <div id="undo-toast-container" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999;">
+        <div id="undo-toast" class="undo-toast" style="display:none;">
+            <span id="undo-toast-label">Item deleted</span>
+            <button class="btn btn-sm btn-outline-light ms-3" onclick="UndoManager.undo()"><i class="bi bi-arrow-counterclockwise me-1"></i>Undo</button>
+            <button class="btn btn-sm btn-link text-light ms-1 p-0" onclick="UndoManager.dismiss()"><i class="bi bi-x"></i></button>
+        </div>
+    </div>
+
+    <!-- Floating AI Assistant Button -->
+    <button id="ai-chat-btn" class="ai-fab-btn" onclick="toggleAiChat()" aria-label="Open AI Financial Assistant" title="AI Financial Advisor">
+        <i class="bi bi-robot"></i>
+        <span class="ai-fab-badge">AI</span>
+    </button>
+
+    <!-- AI Chat Assistant Panel / Drawer -->
+    <div id="ai-chat-panel" class="ai-chat-panel" aria-hidden="true">
+        <div class="ai-chat-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="ai-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">PesaTrucker AI Advisor</h6>
+                    <small class="text-success"><i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>Live Financial Intelligence</small>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-link text-muted p-1" onclick="toggleAiChat()" aria-label="Close AI Chat">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div id="ai-chat-body" class="ai-chat-body">
+            <div class="ai-chat-bubble ai-bot">
+                <div>👋 Hello! I am your <strong>PesaTrucker AI Financial Assistant</strong>. Ask me anything about your cashflow, upcoming bills, top spending categories, budgets, or savings goals!</div>
+            </div>
+        </div>
+
+        <div class="ai-chat-footer">
+            <div id="ai-suggestions" class="ai-suggestions-carousel mb-2">
+                <!-- Populated dynamically -->
+            </div>
+            <form id="ai-chat-form" onsubmit="handleAiChatSubmit(event)" class="d-flex align-items-center gap-2">
+                <button type="button" id="ai-voice-btn" class="btn btn-sm btn-outline-secondary rounded-circle" onclick="AiAssistant.toggleVoiceListening()" title="Voice Speech Input">
+                    <i class="bi bi-mic"></i>
+                </button>
+                <input type="text" id="ai-chat-text" class="form-control form-control-sm rounded-pill" placeholder="Ask financial question..." autocomplete="off" required>
+                <button type="submit" id="ai-chat-send" class="btn btn-sm btn-primary rounded-circle" aria-label="Send">
+                    <i class="bi bi-arrow-up-short fs-5"></i>
+                </button>
+            </form>
         </div>
     </div>
 
@@ -1285,6 +1720,8 @@
     <script src="js/auth.js"></script>
     <script src="js/license-keys.js"></script>
     <script src="js/license.js"></script>
+    <script src="js/ui-helpers.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/app.js"></script>
     <script src="js/ai.js"></script>
     <script src="js/transactions.js"></script>
@@ -1293,6 +1730,8 @@
     <script src="js/events.js"></script>
     <script src="js/reports.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/goals.js"></script>
+    <script src="js/investments.js"></script>
     <script src="js/sync.js"></script>
     
     <!-- Service Worker Registration -->

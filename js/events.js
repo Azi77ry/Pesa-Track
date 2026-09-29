@@ -16,7 +16,7 @@ function renderEvents(events) {
     if (!container) return;
 
     if (!events.length) {
-        container.innerHTML = '<div class="empty-state"><i class="bi bi-calendar3"></i><p>No events yet</p></div>';
+        container.innerHTML = renderEmptyState('calendar3', 'No events yet', 'Add events and get reminders 15 minutes before.', 'showAddEventModal()', 'Add Event');
         return;
     }
 
@@ -68,9 +68,13 @@ function openEventModal(evt = null) {
     form.reset();
     document.getElementById('event-id').value = evt ? evt.id : '';
     document.getElementById('event-title').value = evt ? evt.title : '';
-    document.getElementById('event-date').value = evt ? evt.date : '';
+    document.getElementById('event-date').value = evt ? evt.date : new Date().toISOString().split('T')[0];
     document.getElementById('event-time').value = evt ? evt.time : '';
     document.getElementById('event-notes').value = evt ? evt.notes || '' : '';
+
+    // Fix modal title to show Edit vs Add
+    const titleEl = modalEl.querySelector('.modal-title');
+    if (titleEl) titleEl.textContent = evt ? 'Edit Event' : 'Add Event';
 
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
@@ -123,8 +127,21 @@ async function handleEventSubmit(event) {
 
 async function deleteEvent(id) {
     if (!ensureEventsStore()) return;
-    if (!confirm('Delete this event?')) return;
+    const evt = await DB.get('events', id);
+    if (!evt) return;
+
+    const ok = await UIConfirm.danger(`Delete "${evt.title}"?`, 'Delete Event?');
+    if (!ok) return;
+
     await DB.delete('events', id);
+
+    UndoManager.push('Event deleted', async () => {
+        delete evt.id;
+        await DB.add('events', evt);
+        loadEventsView();
+        showToast('Event restored', 'success');
+    });
+
     showToast('Event deleted', 'success');
     loadEventsView();
 }

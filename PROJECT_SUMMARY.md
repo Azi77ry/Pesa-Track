@@ -18,30 +18,38 @@
 ## 📁 Project Structure
 
 ```
-financeflow/
+PesaTrucker/
 │
 ├── index.html                 # Main application HTML
 ├── manifest.json              # PWA manifest configuration
-├── sw.js                      # Service Worker for offline support
+├── sw.js                      # Service Worker for offline support (v23)
 │
 ├── css/
-│   ├── styles.css            # Main application styles
-│   └── themes.css            # Light/Dark theme styles
+│   ├── styles.css            # Main application styles + micro-animations & components
+│   └── themes.css            # Light/Dark theme variables and styles
 │
 ├── js/
-│   ├── db.js                 # IndexedDB database module
-│   ├── auth.js               # Authentication & user management
-│   ├── license.js            # License activation system
-│   ├── app.js                # Main application logic
-│   ├── transactions.js       # Income/Expense management
-│   ├── budgets.js            # Budget tracking & alerts
-│   ├── bills.js              # Bill payments & reminders
-│   ├── reports.js            # Analytics & Chart.js visualizations
-│   ├── settings.js           # App settings & customization
-│   └── sync.js               # Background sync & online/offline handling
+│   ├── db.js                 # IndexedDB database module (v4 with goals & investments stores)
+│   ├── auth.js               # Authentication & session management
+│   ├── license.js            # License activation & validation system
+│   ├── license-keys.js       # Pre-configured license keys
+│   ├── ui-helpers.js         # Styled confirm modals, undo action toast, & feedback
+│   ├── notifications.js      # Native phone status bar notifications & financial triggers
+│   ├── app.js                # Core routing, state management, & startup
+│   ├── ai.js                 # Conversational AI financial advisor, voice & in-chat charts
+│   ├── transactions.js       # Income/expense management with pagination & search
+│   ├── budgets.js            # Category budget limits, tracking & threshold warnings
+│   ├── bills.js              # Recurring bills, payment status & summary metrics
+│   ├── events.js             # Financial calendar & reminders
+│   ├── goals.js              # Savings targets & milestone tracker
+│   ├── investments.js        # Investment portfolio & ROI analytics
+│   ├── reports.js            # Multi-chart visual analytics, cashflow, tax & insights
+│   ├── settings.js           # Preferences, currency, dark mode & backup/restore
+│   └── sync.js               # Background sync & network connectivity handlers
 │
 ├── assets/
-│   └── icon-192.png          # PWA icon (placeholder - needs actual icons)
+│   ├── icon192.png           # PWA icon (192x192)
+│   └── icon144.png           # PWA icon (144x144)
 │
 └── Documentation/
     ├── README.md             # Complete user documentation
