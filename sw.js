@@ -1,5 +1,5 @@
 // Service Worker for PesaTrucker PWA
-const CACHE_NAME = 'pesatrucker-v25';
+const CACHE_NAME = 'pesatrucker-v26';
 const BASE_PATH = '/Pesa-Track';
 const urlsToCache = [
     `${BASE_PATH}/`,

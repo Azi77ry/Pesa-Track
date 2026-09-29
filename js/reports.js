@@ -1,3 +1,13 @@
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // Reports Module — Advanced Data Visualizations, Interactive Graphs, Spending Insights & Tax Analytics
 
 let categoryChart = null;
@@ -79,16 +89,24 @@ function getReportDateRange(transactions) {
 // ─── Main Reports Loader ──────────────────────────────────────────────────────
 async function loadReportsView() {
     try {
-        const userId = parseInt(Auth.getCurrentUserId());
-        if (!userId || isNaN(userId)) return;
+        const rawUserId = Auth.getCurrentUserId();
+        const userId = rawUserId ? parseInt(rawUserId) : null;
 
-        const allTransactions = (await DB.getUserTransactions(userId)) || [];
-        const categories = (await DB.getUserCategories(userId)) || [];
-        const budgets = (await DB.getUserBudgets(userId)) || [];
-        const investments = DB.getUserInvestments ? ((await DB.getUserInvestments(userId)) || []) : [];
-        const settings = (await DB.getUserSettings(userId)) || {};
+        let allTransactions = [];
+        let categories = [];
+        let budgets = [];
+        let investments = [];
+        let settings = {};
+
+        if (userId && !isNaN(userId)) {
+            try { allTransactions = (await DB.getUserTransactions(userId)) || []; } catch(e){}
+            try { categories = (await DB.getUserCategories(userId)) || []; } catch(e){}
+            try { budgets = (await DB.getUserBudgets(userId)) || []; } catch(e){}
+            try { if (DB.getUserInvestments) investments = (await DB.getUserInvestments(userId)) || []; } catch(e){}
+            try { settings = (await DB.getUserSettings(userId)) || {}; } catch(e){}
+        }
+
         const currency = typeof App !== 'undefined' ? App.getCurrencySymbol(settings?.currency || 'TZS') : 'TZS';
-
         const filteredTransactions = getReportDateRange(allTransactions);
 
         // Update summary metrics cards

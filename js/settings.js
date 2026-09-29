@@ -2,18 +2,39 @@
 
 // Load Settings View
 async function loadSettingsView() {
-    const userId = parseInt(Auth.getCurrentUserId());
-    const settings = await DB.getUserSettings(userId);
-    const categories = await DB.getUserCategories(userId);
-    
-    // Set form values
-    document.getElementById('setting-currency').value = settings?.currency || 'TZS';
-    document.getElementById('setting-theme').value = settings?.theme || 'light';
-    document.getElementById('setting-language').value = settings?.language || 'en';
-    document.getElementById('setting-notifications').checked = settings?.notifications !== false;
-    
-    // Load categories list
-    loadCategoriesList(categories);
+    try {
+        const rawUserId = Auth.getCurrentUserId();
+        const userId = rawUserId ? parseInt(rawUserId) : null;
+        let settings = null;
+        let categories = [];
+
+        if (userId && !isNaN(userId)) {
+            try {
+                settings = await DB.getUserSettings(userId);
+                categories = (await DB.getUserCategories(userId)) || [];
+            } catch (e) {
+                console.warn('Error loading user settings from DB:', e);
+            }
+        }
+        
+        // Set form values safely
+        const currencyEl = document.getElementById('setting-currency');
+        if (currencyEl) currencyEl.value = settings?.currency || 'TZS';
+
+        const themeEl = document.getElementById('setting-theme');
+        if (themeEl) themeEl.value = settings?.theme || 'light';
+
+        const langEl = document.getElementById('setting-language');
+        if (langEl) langEl.value = settings?.language || 'en';
+
+        const notifEl = document.getElementById('setting-notifications');
+        if (notifEl) notifEl.checked = settings?.notifications !== false;
+        
+        // Load categories list safely
+        loadCategoriesList(categories || []);
+    } catch (err) {
+        console.error('Error in loadSettingsView:', err);
+    }
 }
 
 // Save Setting
@@ -83,25 +104,26 @@ function reloadActiveViewForCurrency() {
 }
 
 // Load Categories List
-function loadCategoriesList(categories) {
+function loadCategoriesList(categories = []) {
     const container = document.getElementById('categories-list');
+    if (!container) return;
     
-    // Group by type
-    const incomeCategories = categories.filter(c => c.type === 'income');
-    const expenseCategories = categories.filter(c => c.type === 'expense');
+    const list = Array.isArray(categories) ? categories : [];
+    const incomeCategories = list.filter(c => c && c.type === 'income');
+    const expenseCategories = list.filter(c => c && c.type === 'expense');
     
     container.innerHTML = `
         <div class="mb-4">
             <h6 class="text-muted mb-3">Income Categories</h6>
             <div class="list-group">
-                ${incomeCategories.map(cat => renderCategoryItem(cat)).join('')}
+                ${incomeCategories.length > 0 ? incomeCategories.map(cat => renderCategoryItem(cat)).join('') : '<div class="list-group-item text-muted small">No income categories found.</div>'}
             </div>
         </div>
         
         <div class="mb-4">
             <h6 class="text-muted mb-3">Expense Categories</h6>
             <div class="list-group">
-                ${expenseCategories.map(cat => renderCategoryItem(cat)).join('')}
+                ${expenseCategories.length > 0 ? expenseCategories.map(cat => renderCategoryItem(cat)).join('') : '<div class="list-group-item text-muted small">No expense categories found.</div>'}
             </div>
         </div>
     `;

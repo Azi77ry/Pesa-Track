@@ -163,43 +163,54 @@ const DB = {
         });
     },
 
+    async getUser(userId) {
+        if (!userId || isNaN(parseInt(userId))) return null;
+        return this.get('users', parseInt(userId));
+    },
+
     async getUserTransactions(userId) {
-        return this.getAllByIndex('transactions', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId))) return [];
+        return this.getAllByIndex('transactions', 'userId', parseInt(userId));
     },
 
     async getUserBudgets(userId) {
-        return this.getAllByIndex('budgets', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId))) return [];
+        return this.getAllByIndex('budgets', 'userId', parseInt(userId));
     },
 
     async getUserBills(userId) {
-        return this.getAllByIndex('bills', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId))) return [];
+        return this.getAllByIndex('bills', 'userId', parseInt(userId));
     },
 
     async getUserCategories(userId) {
-        return this.getAllByIndex('categories', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId))) return [];
+        return this.getAllByIndex('categories', 'userId', parseInt(userId));
     },
 
     async getUserSettings(userId) {
-        return this.get('settings', userId);
+        if (!userId || isNaN(parseInt(userId))) return null;
+        return this.get('settings', parseInt(userId));
     },
 
     async getUserLicense(userId) {
-        return this.get('license', userId);
+        if (!userId || isNaN(parseInt(userId))) return null;
+        return this.get('license', parseInt(userId));
     },
 
     async getUserGoals(userId) {
-        if (!this.db.objectStoreNames.contains('goals')) return [];
-        return this.getAllByIndex('goals', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId)) || !this.db.objectStoreNames.contains('goals')) return [];
+        return this.getAllByIndex('goals', 'userId', parseInt(userId));
     },
 
     async getUserInvestments(userId) {
-        if (!this.db.objectStoreNames.contains('investments')) return [];
-        return this.getAllByIndex('investments', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId)) || !this.db.objectStoreNames.contains('investments')) return [];
+        return this.getAllByIndex('investments', 'userId', parseInt(userId));
     },
 
     async getUserEvents(userId) {
-        if (!this.db.objectStoreNames.contains('events')) return [];
-        return this.getAllByIndex('events', 'userId', userId);
+        if (!userId || isNaN(parseInt(userId)) || !this.db.objectStoreNames.contains('events')) return [];
+        return this.getAllByIndex('events', 'userId', parseInt(userId));
     },
 
     // Initialize default categories for new user
