@@ -889,7 +889,7 @@
                                     </div>
                                 </div>
 
-                                <div class="card panel-card">
+                                <div class="card panel-card mb-4">
                                     <div class="card-header bg-white panel-header">
                                         <h5 class="mb-0">Categories Management</h5>
                                     </div>
@@ -900,6 +900,29 @@
                                         <div id="categories-list">
                                             <!-- Populated by JavaScript -->
                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="card panel-card">
+                                    <div class="card-header bg-white panel-header">
+                                        <h5 class="mb-0"><i class="bi bi-arrow-repeat text-primary me-2"></i>App Updates & Version</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <div class="fw-bold">PesaTrucker Live PWA</div>
+                                                <div class="small text-muted">Version 2.5.0 • Live Updates</div>
+                                            </div>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                <i class="bi bi-check-circle-fill me-1"></i>Active
+                                            </span>
+                                        </div>
+                                        <p class="small text-muted mb-3">
+                                            Kama unataka kusasisha mara moja na kupokea vipengele vipya bila kusubiri, bofya kitufe cha chini:
+                                        </p>
+                                        <button class="btn btn-outline-primary w-100" type="button" onclick="forceAppUpdate()">
+                                            <i class="bi bi-arrow-clockwise me-2"></i>Sasisha App Sasa (Force Update & Clear Cache)
+                                        </button>
                                     </div>
                                 </div>
 
@@ -1768,26 +1791,30 @@
     <script src="js/investments.js"></script>
     <script src="js/sync.js"></script>
     
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration & Instant Auto-Update Engine -->
     <script>
         if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
                     .then(reg => {
                         console.log('Service Worker registered');
+                        // Force check for sw.js updates every single load
+                        reg.update();
 
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
                             if (!newWorker) return;
 
                             newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                    }
                                 }
                             });
                         });
                     })
-                    .catch(err => console.log('Service Worker registration failed'));
+                    .catch(err => console.log('Service Worker registration failed:', err));
             });
 
             let refreshing = false;
@@ -1799,6 +1826,30 @@
         } else if (window.location.protocol === 'file:') {
             console.log('Service Worker skipped: file:// protocol is not supported.');
         }
+
+        // Global manual cache purge helper
+        window.forceAppUpdate = async function() {
+            if (typeof showToast === 'function') {
+                showToast('Inapakua toleo jipya na kufuta cache ya zamani...', 'success');
+            }
+            try {
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(key => caches.delete(key)));
+                }
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let r of registrations) {
+                        await r.unregister();
+                    }
+                }
+            } catch (e) {
+                console.error('Update error:', e);
+            }
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 600);
+        };
     </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 // Service Worker for PesaTrucker PWA
-const CACHE_NAME = 'pesatrucker-v23';
+const CACHE_NAME = 'pesatrucker-v25';
 const BASE_PATH = '/Pesa-Track';
 const urlsToCache = [
     `${BASE_PATH}/`,
@@ -35,73 +35,100 @@ const urlsToCache = [
     `${BASE_PATH}/js/goals.js`,
     `${BASE_PATH}/js/investments.js`,
     `${BASE_PATH}/js/sync.js`,
-    `${BASE_PATH}/README.md`,
-    `${BASE_PATH}/QUICKSTART.md`,
-    `${BASE_PATH}/PROJECT_SUMMARY.md`,
-    `${BASE_PATH}/DEVELOPER.md`,
     `${BASE_PATH}/assets/icon192.png`,
     `${BASE_PATH}/assets/icon144.png`
 ];
 
-// Install Service Worker
+// Install Service Worker - precache essential assets & immediately activate
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('Opened cache');
                 return cache.addAll(urlsToCache);
             })
-    );
-    self.skipWaiting();
-});
-
-// Fetch from cache
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Cache hit - return response
-                if (response) {
-                    return response;
-                }
-
-                return fetch(event.request).then(
-                    response => {
-                        // Check if valid response
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        // Clone the response
-                        const responseToCache = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(event.request, responseToCache);
-                            });
-
-                        return response;
-                    }
-                );
-            })
+            .then(() => self.skipWaiting())
     );
 });
 
-// Activate Service Worker
+// Activate Service Worker - aggressively purge all outdated caches & claim clients
 self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
+                    if (cacheName !== CACHE_NAME) {
+                        console.log('Purging old cache:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
             );
+        }).then(() => self.clients.claim())
+    );
+});
+
+// Fetch event: Network-First for App Code (HTML, JS, CSS) to guarantee instant updates
+// Cache-First with revalidation for static media (fonts, images)
+self.addEventListener('fetch', event => {
+    const url = new URL(event.request.url);
+
+    if (event.request.method !== 'GET' || !url.protocol.startsWith('http')) {
+        return;
+    }
+
+    const isCode = event.request.destination === 'document' ||
+                   event.request.destination === 'script' ||
+                   event.request.destination === 'style' ||
+                   url.pathname.endsWith('.html') ||
+                   url.pathname.endsWith('.js') ||
+                   url.pathname.endsWith('.css');
+
+    if (isCode) {
+        // Network-First: Always fetch fresh code from the server when online
+        event.respondWith(
+            fetch(event.request)
+                .then(networkResponse => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const copy = networkResponse.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+                    }
+                    return networkResponse;
+                })
+                .catch(() => {
+                    // Fallback to cache if offline
+                    return caches.match(event.request).then(cached => {
+                        if (cached) return cached;
+                        if (event.request.destination === 'document') {
+                            return caches.match(`${BASE_PATH}/index.html`);
+                        }
+                        return new Response('Offline', { status: 503, statusText: 'Offline' });
+                    });
+                })
+        );
+        return;
+    }
+
+    // Static Assets (fonts, images): Cache-first with background cache update
+    event.respondWith(
+        caches.match(event.request).then(cached => {
+            if (cached) {
+                // Revalidate in background
+                fetch(event.request).then(networkResponse => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+                    }
+                }).catch(() => {});
+                return cached;
+            }
+
+            return fetch(event.request).then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const copy = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+                }
+                return networkResponse;
+            });
         })
     );
-    self.clients.claim();
 });
 
 self.addEventListener('message', event => {
